@@ -65,6 +65,8 @@ On narrow screens (or when the window is squeezed to the side of your monitor), 
 
 **Location tabs** appear below the client name. If a client has multiple locations (e.g. Main, Branch), click the tab to switch between them.
 
+**Version badge** — shown in the header. Displays the format `clients-locations-users.save` (for example, `2-3-12.38`). The first three numbers reflect how many clients, locations, and users are currently in the file. The number after the dot is a sequential save counter and is the true unique identifier — the higher it is, the newer the file.
+
 ---
 
 ## 7. Copying credentials
@@ -183,13 +185,15 @@ Use this to share your data with a coworker, create a backup, or transfer data t
 
 ---
 
-## 15. Printing credentials
+## 15. Printing and copying credentials
 
-Click **Print** in the header to generate and download a formatted `.txt` file with all credentials in plain text.
+**Print all:** Click **Print** in the header to generate and download a formatted `.txt` file with all credentials in plain text.
 
-To print only one client's credentials, select that client and click **Print** next to the client name in the main panel.
+**Print one client:** Select a client and click **Print** next to the client name in the main panel. This downloads a file for that client only.
 
-The print file uses the currently active language.
+**Copy one client:** Click **Copy** next to the Print button to copy that client's credentials directly to your clipboard — no file download. Useful for pasting into a message or document.
+
+The output uses the currently active language. Passwords that contain spaces are shown in quotes (e.g. `"my password "`).
 
 > Print files are plain text (unencrypted) by design — they are meant for reading, not storage.
 
@@ -208,7 +212,7 @@ To receive an updated file from a coworker:
 
 If the version numbers differ, the app will tell you which file is newer before asking you to confirm.
 
-> The imported file must have been encrypted with the same master passphrase. If decryption fails, an error will appear.
+> If the file was encrypted with a different master passphrase, the app will prompt you to enter it. Once decrypted, the data is automatically re-encrypted with your own passphrase. You will not need to enter the other passphrase again.
 
 ---
 
@@ -221,7 +225,7 @@ The recommended workflow for a team sharing this tool:
 3. The coworker opens their app, clicks **Import**, selects the file, and confirms.
 4. Both users now have the same data.
 
-**The master passphrase is never sent with the file.** Communicate it separately, in person or via a secure channel. All coworkers must use the same passphrase to access the encrypted file.
+**The master passphrase is never sent with the file.** Each person can use their own passphrase. If a coworker imports a file encrypted with a different passphrase, the app will prompt them to enter it once — after that, the data is stored under their own passphrase automatically.
 
 ---
 

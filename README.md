@@ -28,8 +28,10 @@ O servidor encerra automaticamente após **30 minutos de inatividade** — ou se
 - **Senha do certificado** — armazenada por local, com histórico de alterações.
 - **Histórico de senhas** — senhas antigas ficam salvas automaticamente ao alterar.
 - **Copiar com um clique** — botão ⧉ ao lado de cada credencial copia para a área de transferência.
-- **Exportar / Importar** — compartilhe o arquivo JSON com colegas. O sistema detecta conflitos de versão automaticamente.
-- **Imprimir** — gera um arquivo `.txt` formatado com todas as credenciais (ou de um cliente específico).
+- **Copiar cliente** — botão Copiar ao lado de Imprimir copia todas as credenciais do cliente para a área de transferência em texto simples.
+- **Exportar / Importar** — compartilhe o arquivo JSON com colegas. Conflitos de versão são detectados automaticamente. Se o arquivo importado foi criptografado com uma senha diferente, o app solicita essa senha e re-criptografa com a sua própria automaticamente.
+- **Versão identificada** — o badge de versão exibe `clientes-locais-usuários.salvamento` (ex: `2-3-12.38`), mostrando o estado exato do arquivo carregado.
+- **Imprimir** — gera um arquivo `.txt` formatado com todas as credenciais (ou de um cliente específico). Senhas com espaços são exibidas entre aspas.
 - **Idioma** — suporte a Português (PT-BR) e Inglês. A preferência é salva localmente no navegador.
 
 ### Compartilhamento de arquivo
@@ -41,7 +43,7 @@ O arquivo de dados fica em `data/credentials.json` (criptografado). Cada vez que
 3. O colega clica em **Importar**, seleciona o arquivo e confirma.
 4. Se houver conflito de versão, o sistema avisará qual arquivo é mais recente.
 
-> A senha mestra **não** viaja com o arquivo. Comunique-a ao colega separadamente (presencialmente ou via canal seguro).
+> Se o arquivo foi criptografado com uma senha diferente da sua, o app solicitará essa senha no momento da importação. Os dados serão automaticamente re-criptografados com a sua própria senha — você só precisa informar a senha do arquivo uma única vez.
 
 ### Sistema de honra
 
@@ -95,8 +97,10 @@ The server shuts down automatically after **30 minutes of inactivity** — just 
 - **Certificate password** — stored per location, with change history.
 - **Password history** — old passwords are saved automatically when changed.
 - **One-click copy** — ⧉ button next to each credential copies it to the clipboard.
-- **Export / Import** — share the JSON file with coworkers. Version conflicts are detected automatically.
-- **Print** — generates a formatted `.txt` file with all credentials (or a specific client).
+- **Copy client** — Copy button next to Print copies all of a client's credentials to the clipboard in plain text.
+- **Export / Import** — share the JSON file with coworkers. Version conflicts are detected automatically. If the incoming file was encrypted with a different passphrase, the app prompts for it and re-encrypts with your own — no passphrase coordination required upfront.
+- **Identified version** — the version badge displays `clients-locations-users.save` (e.g. `2-3-12.38`), so you can verify the exact state of the loaded file at a glance.
+- **Print** — generates a formatted `.txt` file with all credentials (or a specific client). Passwords containing spaces are shown in quotes.
 - **Language** — supports English and Portuguese (PT-BR). Preference is saved locally in the browser.
 
 ### File sharing
@@ -108,7 +112,7 @@ The data file lives at `data/credentials.json` (encrypted). Every save increment
 3. They click **Import**, select the file, and confirm.
 4. If there's a version conflict, the app will show which file is newer.
 
-> The master passphrase does **not** travel with the file. Communicate it to your coworker separately (in person or via a secure channel).
+> If the file was encrypted with a different passphrase, the app will prompt for it on import. The data is then re-encrypted with your own passphrase automatically — you only need to enter the other passphrase once.
 
 ### Honor system
 

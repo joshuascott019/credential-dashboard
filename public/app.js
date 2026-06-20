@@ -15,6 +15,8 @@ const LANGS = {
     branch: 'Branch',
     btnEdit: 'Edit',
     btnPrintClient: 'Print',
+    btnCopyClient: 'Copy',
+    toastCopied: 'Copied',
     certPassword: 'Cert Password',
     certNone: 'none',
     btnOldPasswords: (n) => `Old Passwords (${n})`,
@@ -74,13 +76,13 @@ const LANGS = {
     txtTitle: 'CREDENTIAL DASHBOARD',
     txtExported: 'Exported:',
     txtVersion: 'Version:',
-    txtCertLabel: 'Cert Password:',
-    txtCertHistLabel: 'Cert History:',
+    txtCertLabel: 'Cert PW:',
+    txtCertHistLabel: 'Old Cert PW:',
     txtUsersNone: 'Users: (none)',
     txtUsersLabel: 'Users:',
     txtNone: '(none)',
-    txtPasswordLabel: 'Password:',
-    txtPrevLabel: 'Previous passwords:',
+    txtPasswordLabel: 'PW:',
+    txtPrevLabel: 'Old PW:',
     txtEnd: 'End of export',
     exportAllFilename: (v) => `all_credentials_v${v}.txt`,
     exportClientFilename: (name) => `${name}_credentials.txt`,
@@ -98,6 +100,8 @@ const LANGS = {
     passphraseEmpty: 'Passphrase cannot be empty.',
     passphraseMismatch: 'Passphrases do not match.',
     toastImportDecryptFail: 'Could not decrypt file. Wrong passphrase?',
+    importPassphraseTitle: 'Enter File Passphrase',
+    importPassphraseHint: 'This file was encrypted with a different passphrase. Enter the passphrase used to encrypt it.',
     adminConfirmTitle: 'Enter Admin Mode',
     adminConfirmBody: 'You are about to enter admin mode. In this mode you can add, edit, and delete clients, locations, users, and credentials. Only proceed if you intend to make changes.',
     btnEnterAdmin: 'Enter Admin Mode',
@@ -117,6 +121,8 @@ const LANGS = {
     branch: 'Filial',
     btnEdit: 'Editar',
     btnPrintClient: 'Imprimir',
+    btnCopyClient: 'Copiar',
+    toastCopied: 'Copiado',
     certPassword: 'Senha do Cert.',
     certNone: 'nenhuma',
     btnOldPasswords: (n) => `Senhas Antigas (${n})`,
@@ -176,13 +182,13 @@ const LANGS = {
     txtTitle: 'PAINEL DE CREDENCIAIS',
     txtExported: 'Exportado em:',
     txtVersion: 'Versão:',
-    txtCertLabel: 'Senha do Cert.:',
-    txtCertHistLabel: 'Histórico do Cert.:',
+    txtCertLabel: 'Cert.:',
+    txtCertHistLabel: 'Cert. Antigas:',
     txtUsersNone: 'Usuários: (nenhum)',
     txtUsersLabel: 'Usuários:',
     txtNone: '(nenhum)',
     txtPasswordLabel: 'Senha:',
-    txtPrevLabel: 'Senhas anteriores:',
+    txtPrevLabel: 'Senhas Antigas:',
     txtEnd: 'Fim da exportação',
     exportAllFilename: (v) => `todas_credenciais_v${v}.txt`,
     exportClientFilename: (name) => `${name}_credenciais.txt`,
@@ -200,6 +206,8 @@ const LANGS = {
     passphraseEmpty: 'A senha não pode ser vazia.',
     passphraseMismatch: 'As senhas não coincidem.',
     toastImportDecryptFail: 'Não foi possível descriptografar o arquivo. Senha incorreta?',
+    importPassphraseTitle: 'Digite a Senha do Arquivo',
+    importPassphraseHint: 'Este arquivo foi criptografado com uma senha diferente. Digite a senha usada para criptografá-lo.',
     adminConfirmTitle: 'Entrar no Modo Admin',
     adminConfirmBody: 'Você está prestes a entrar no modo administrador. Neste modo é possível adicionar, editar e excluir clientes, locais, usuários e credenciais. Prossiga somente se quiser fazer alterações.',
     btnEnterAdmin: 'Entrar no Modo Admin',
@@ -380,7 +388,7 @@ function setFieldError(id, message) {
   if (el) { el.textContent = message; el.style.display = 'block'; }
 }
 
-function showPassphraseModal(title, bodyHTML, confirmLabel, onConfirm) {
+function showPassphraseModal(title, bodyHTML, confirmLabel, onConfirm, cancellable = false) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('modal-overlay');
     document.getElementById('modal-title').textContent = title;
@@ -392,16 +400,24 @@ function showPassphraseModal(title, bodyHTML, confirmLabel, onConfirm) {
     const newConfirm = oldConfirm.cloneNode(true);
     const newCancel = oldCancel.cloneNode(true);
     newConfirm.textContent = confirmLabel;
-    newCancel.style.display = 'none';
+    if (cancellable) {
+      newCancel.textContent = t.btnCancel;
+      newCancel.onclick = () => { closeModal(); resolve(false); };
+    } else {
+      newCancel.style.display = 'none';
+    }
     oldConfirm.parentNode.replaceChild(newConfirm, oldConfirm);
     oldCancel.parentNode.replaceChild(newCancel, oldCancel);
 
     overlay.onclick = null;
-    overlay.onkeydown = (e) => { if (e.key === 'Enter') newConfirm.click(); };
+    overlay.onkeydown = (e) => {
+      if (e.key === 'Enter') newConfirm.click();
+      if (e.key === 'Escape' && cancellable) { closeModal(); resolve(false); }
+    };
 
     newConfirm.onclick = async () => {
       const result = await onConfirm();
-      if (result !== false) { closeModal(); resolve(); }
+      if (result !== false) { closeModal(); resolve(true); }
     };
 
     setTimeout(() => overlay.querySelector('input')?.focus(), 30);
@@ -554,8 +570,15 @@ function render() {
   updateVersionBadge();
 }
 
+function formatVersion() {
+  const clients = appData.clients.length;
+  const locations = appData.clients.reduce((s, c) => s + c.locations.length, 0);
+  const users = appData.clients.reduce((s, c) => s + c.locations.reduce((ls, l) => ls + l.users.length, 0), 0);
+  return `${clients}-${locations}-${users}.${appData.version}`;
+}
+
 function updateVersionBadge() {
-  document.getElementById('version-badge').textContent = `v${appData.version}`;
+  document.getElementById('version-badge').textContent = formatVersion();
 }
 
 function renderClientList() {
@@ -613,6 +636,7 @@ function renderMainPanel() {
       <div class="client-actions">
         <button class="btn-sm admin-only" id="rename-client-btn">${t.btnEdit}</button>
         <button class="btn-secondary" id="export-client-txt-btn">${t.btnPrintClient}</button>
+        <button class="btn-secondary" id="copy-client-btn">${t.btnCopyClient}</button>
         <button class="btn-danger admin-only" id="delete-client-btn">✕</button>
       </div>
     </div>
@@ -637,6 +661,8 @@ function renderMainPanel() {
     renameClient(client.id);
   document.getElementById('export-client-txt-btn').onclick = () =>
     exportTxt(client.id);
+  document.getElementById('copy-client-btn').onclick = () =>
+    copyClientData(client.id);
   document.getElementById('delete-client-btn').onclick = () =>
     deleteClient(client.id);
   document.getElementById('add-location-btn').onclick = () =>
@@ -1162,21 +1188,21 @@ function exportTxt(clientId = null) {
     ? appData.clients.filter((c) => c.id === clientId)
     : appData.clients;
 
-  const fmtDate = (iso) =>
+  const fmtPW = (pw) => (/\s/.test(pw) ? `"${pw}"` : pw);
+  const fmtDateLong = (iso) =>
     new Date(iso).toLocaleDateString(t.locale, {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     });
-  const today = fmtDate(new Date().toISOString());
+  const fmtDate = (iso) => new Date(iso).toLocaleDateString(t.locale);
+  const today = fmtDateLong(new Date().toISOString());
   const div = '═'.repeat(52);
   const sub = '─'.repeat(40);
   const lines = [];
 
   lines.push(t.txtTitle);
-  lines.push(
-    `${t.txtExported} ${today}  |  ${t.txtVersion} ${appData.version}`,
-  );
+  lines.push(`${t.txtExported} ${today}  |  ${t.txtVersion} ${formatVersion()}`);
   lines.push(div);
 
   targets.forEach((client, ci) => {
@@ -1187,12 +1213,12 @@ function exportTxt(clientId = null) {
     client.locations.forEach((loc, li) => {
       lines.push('');
       lines.push(`  ${ci + 1}.${li + 1}  ${loc.name}`);
-      lines.push(`       ${t.txtCertLabel} ${loc.certPassword || t.txtNone}`);
+      lines.push(`       ${t.txtCertLabel} ${loc.certPassword ? fmtPW(loc.certPassword) : t.txtNone}`);
 
       if (loc.certPasswordHistory?.length) {
         lines.push(`       ${t.txtCertHistLabel}`);
         loc.certPasswordHistory.forEach((h) => {
-          lines.push(`         - ${h.password}  (${fmtDate(h.changedAt)})`);
+          lines.push(`         - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
         });
       }
 
@@ -1204,15 +1230,11 @@ function exportTxt(clientId = null) {
         loc.users.forEach((user, ui) => {
           lines.push('');
           lines.push(`       ${ci + 1}.${li + 1}.${ui + 1}  ${user.username}`);
-          lines.push(
-            `              ${t.txtPasswordLabel} ${user.currentPassword}`,
-          );
+          lines.push(`              ${t.txtPasswordLabel} ${fmtPW(user.currentPassword)}`);
           if (user.passwordHistory.length) {
             lines.push(`              ${t.txtPrevLabel}`);
             user.passwordHistory.forEach((h) => {
-              lines.push(
-                `                - ${h.password}  (${fmtDate(h.changedAt)})`,
-              );
+              lines.push(`                - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
             });
           }
         });
@@ -1244,6 +1266,50 @@ function exportTxt(clientId = null) {
   URL.revokeObjectURL(url);
 }
 
+function copyClientData(clientId) {
+  const client = appData.clients.find((c) => c.id === clientId);
+  const fmtPW = (pw) => (/\s/.test(pw) ? `"${pw}"` : pw);
+  const fmtDate = (iso) => new Date(iso).toLocaleDateString(t.locale);
+  const lines = [];
+
+  lines.push(client.name.toUpperCase());
+
+  client.locations.forEach((loc) => {
+    lines.push('');
+    lines.push(`  ${loc.name}`);
+
+    if (loc.certPassword) {
+      lines.push(`  ${t.txtCertLabel} ${fmtPW(loc.certPassword)}`);
+    }
+    if (loc.certPasswordHistory?.length) {
+      lines.push(`  ${t.txtCertHistLabel}`);
+      loc.certPasswordHistory.forEach((h) => {
+        lines.push(`    - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
+      });
+    }
+
+    if (loc.users.length) {
+      lines.push('');
+      lines.push(`  ${t.txtUsersLabel}`);
+      loc.users.forEach((user) => {
+        lines.push('');
+        lines.push(`  ${user.username}`);
+        lines.push(`    ${t.txtPasswordLabel} ${fmtPW(user.currentPassword)}`);
+        if (user.passwordHistory.length) {
+          lines.push(`    ${t.txtPrevLabel}`);
+          user.passwordHistory.forEach((h) => {
+            lines.push(`      - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
+          });
+        }
+      });
+    }
+  });
+
+  navigator.clipboard.writeText(lines.join('\n'))
+    .then(() => showToast(t.toastCopied))
+    .catch(() => showToast(t.toastCopyFailed, 'error'));
+}
+
 async function handleImportFile(file) {
   try {
     const incoming = JSON.parse(await file.text());
@@ -1258,14 +1324,43 @@ async function handleImportFile(file) {
         showToast(t.toastInvalidFile, 'error');
         return;
       }
+
+      // Try current passphrase first — works when both users share the same passphrase
+      let decryptedOk = false;
       try {
         const importSalt = base64ToBuf(incoming.salt);
         const importKey = await deriveKey(masterPassphrase, importSalt);
         const plaintext = await decryptClients(incoming, importKey);
         incomingClients = JSON.parse(plaintext);
-      } catch {
-        showToast(t.toastImportDecryptFail, 'error');
-        return;
+        decryptedOk = true;
+      } catch { /* passphrase mismatch — fall through to prompt */ }
+
+      if (!decryptedOk) {
+        const confirmed = await showPassphraseModal(
+          t.importPassphraseTitle,
+          `<p class="passphrase-hint">${t.importPassphraseHint}</p>
+           <div class="form-group">
+             <label>${t.passphraseLabel}</label>
+             <input type="password" id="f-import-pass" placeholder="${t.passphrasePlaceholder}" autocomplete="current-password">
+             <p id="f-import-pass-err" class="field-error" style="display:none"></p>
+           </div>`,
+          t.btnUnlock,
+          async () => {
+            const pass = document.getElementById('f-import-pass').value;
+            if (!pass) { setFieldError('f-import-pass-err', t.passphraseEmpty); return false; }
+            try {
+              const importSalt = base64ToBuf(incoming.salt);
+              const importKey = await deriveKey(pass, importSalt);
+              const plaintext = await decryptClients(incoming, importKey);
+              incomingClients = JSON.parse(plaintext);
+            } catch {
+              setFieldError('f-import-pass-err', t.passphraseWrong);
+              return false;
+            }
+          },
+          true,
+        );
+        if (!confirmed) return;
       }
     } else {
       if (!Array.isArray(incoming.clients)) {
@@ -1286,17 +1381,29 @@ async function handleImportFile(file) {
 
     if (!confirm(msg)) return;
 
+    // Re-encrypt with the current user's key so the stored file stays in their encryption context
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      cryptoKey,
+      new TextEncoder().encode(JSON.stringify(incomingClients)),
+    );
+    const payload = {
+      version: incomingVer,
+      encrypted: true,
+      salt: bufToBase64(cryptoSalt),
+      iv: bufToBase64(iv),
+      data: bufToBase64(new Uint8Array(ciphertext)),
+      lastModified: incoming.lastModified,
+    };
+
     const res = await fetch('/api/import/confirm', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(incoming),
+      body: JSON.stringify(payload),
     });
 
     if (res.ok) {
-      if (incoming.encrypted) {
-        cryptoSalt = base64ToBuf(incoming.salt);
-        cryptoKey = await deriveKey(masterPassphrase, cryptoSalt);
-      }
       appData.clients = incomingClients;
       appData.version = incomingVer;
       appData.lastModified = incoming.lastModified;

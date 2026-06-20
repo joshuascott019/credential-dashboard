@@ -65,6 +65,8 @@ Em telas estreitas (ou quando a janela está comprimida ao lado do monitor), a b
 
 As **abas de localização** aparecem abaixo do nome do cliente. Se um cliente tem múltiplos locais (ex: Matriz, Filial), clique na aba para alternar entre eles.
 
+**Badge de versão** — exibido no cabeçalho. Mostra o formato `clientes-locais-usuários.salvamento` (por exemplo, `2-3-12.38`). Os três primeiros números indicam quantos clientes, locais e usuários existem no arquivo. O número após o ponto é um contador sequencial de salvamentos e é o identificador único real — quanto maior, mais recente é o arquivo.
+
 ---
 
 ## 7. Copiando credenciais
@@ -183,13 +185,15 @@ Use isso para compartilhar seus dados com um colega, criar um backup ou transfer
 
 ---
 
-## 15. Imprimindo credenciais
+## 15. Imprimindo e copiando credenciais
 
-Clique em **Imprimir** no cabeçalho para gerar e baixar um arquivo `.txt` formatado com todas as credenciais em texto simples.
+**Imprimir tudo:** Clique em **Imprimir** no cabeçalho para gerar e baixar um arquivo `.txt` formatado com todas as credenciais em texto simples.
 
-Para imprimir apenas as credenciais de um cliente, selecione esse cliente e clique em **Imprimir** ao lado do nome do cliente no painel principal.
+**Imprimir um cliente:** Selecione um cliente e clique em **Imprimir** ao lado do nome do cliente no painel principal. Isso baixa um arquivo somente para aquele cliente.
 
-O arquivo de impressão usa o idioma atualmente selecionado.
+**Copiar um cliente:** Clique em **Copiar** ao lado do botão Imprimir para copiar as credenciais do cliente diretamente para a área de transferência — sem baixar nenhum arquivo. Útil para colar em uma mensagem ou documento.
+
+O resultado usa o idioma atualmente selecionado. Senhas que contêm espaços são exibidas entre aspas (ex: `"minha senha "`).
 
 > Os arquivos de impressão são em texto simples (não criptografados) por design — são para leitura, não para armazenamento.
 
@@ -208,7 +212,7 @@ Para receber um arquivo atualizado de um colega:
 
 Se os números de versão forem diferentes, o app informará qual arquivo é mais recente antes de pedir confirmação.
 
-> O arquivo importado deve ter sido criptografado com a mesma senha mestra. Se a descriptografia falhar, uma mensagem de erro aparecerá.
+> Se o arquivo foi criptografado com uma senha mestra diferente, o app solicitará que você a informe. Após a descriptografia, os dados são automaticamente re-criptografados com a sua própria senha. Não será necessário informar a senha do outro arquivo novamente.
 
 ---
 
@@ -221,7 +225,7 @@ O fluxo recomendado para uma equipe que compartilha esta ferramenta:
 3. O colega abre seu app, clica em **Importar**, seleciona o arquivo e confirma.
 4. Ambos os usuários terão os mesmos dados.
 
-**A senha mestra nunca é enviada com o arquivo.** Comunique-a separadamente, pessoalmente ou por um canal seguro. Todos os colegas devem usar a mesma senha mestra para acessar o arquivo criptografado.
+**A senha mestra nunca é enviada com o arquivo.** Cada pessoa pode usar sua própria senha. Se um colega importar um arquivo criptografado com uma senha diferente, o app solicitará que ele a informe uma vez — após isso, os dados ficam armazenados sob a senha própria dele automaticamente.
 
 ---
 
