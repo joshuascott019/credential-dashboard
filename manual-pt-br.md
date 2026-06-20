@@ -1,5 +1,7 @@
 # Credential Dashboard — Manual do Usuário
 
+> *Tradução gerada por IA. Em caso de dúvida, consulte o manual em inglês (`manual-en.md`).*
+
 ---
 
 ## 1. O que é este app?

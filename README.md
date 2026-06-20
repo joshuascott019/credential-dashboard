@@ -4,6 +4,8 @@
 
 ## Português
 
+> *Tradução gerada por IA. Em caso de dúvida, consulte a versão em inglês abaixo.*
+
 ### O que é
 
 Um painel local para gerenciar credenciais de clientes — usuários, senhas e senhas de certificado. Feito para uso interno, permite visualizar e copiar credenciais com um clique, sem precisar abrir arquivos de texto. Os dados são protegidos por criptografia AES-256-GCM com senha mestra.
