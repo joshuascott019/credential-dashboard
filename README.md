@@ -27,10 +27,12 @@ O servidor encerra automaticamente após **30 minutos de inatividade** — ou se
 - **Clientes** — cadastre e gerencie múltiplos clientes na barra lateral.
 - **Locais** — cada cliente pode ter um ou mais locais (ex: Matriz, Filial).
 - **Usuários** — cada local possui seus próprios usuários com nome de usuário e senha.
-- **Senha do certificado** — armazenada por local, com histórico de alterações.
+- **Certificados** — cada local suporta múltiplos certificados nomeados (ex: Principal, Admin, VPN), cada um com sua própria senha e histórico de alterações.
 - **Histórico de senhas** — senhas antigas ficam salvas automaticamente ao alterar.
 - **Copiar com um clique** — botão ⧉ ao lado de cada credencial copia para a área de transferência.
 - **Copiar cliente** — botão Copiar ao lado de Imprimir copia todas as credenciais do cliente para a área de transferência em texto simples.
+- **Visibilidade de senhas** — exiba ou oculte todas as senhas de uma vez com o botão Visível/Oculto no cabeçalho.
+- **Ordenação** — a lista de clientes e a lista de usuários têm um botão de ordenação A–Z / Z–A.
 - **Exportar / Importar** — compartilhe o arquivo JSON com colegas. Conflitos de versão são detectados automaticamente. Se o arquivo importado foi criptografado com uma senha diferente, o app solicita essa senha e re-criptografa com a sua própria automaticamente.
 - **Versão identificada** — o badge de versão exibe `clientes-locais-usuários.salvamento` (ex: `2-3-12.38`), mostrando o estado exato do arquivo carregado.
 - **Imprimir** — gera um arquivo `.txt` formatado com todas as credenciais (ou de um cliente específico). Senhas com espaços são exibidas entre aspas.
@@ -56,7 +58,8 @@ Não há contas de usuário individuais. Recomenda-se que apenas uma pessoa edit
 ```
 Cliente
 └── Local (ex: Matriz, Filial)
-    ├── Senha do certificado
+    ├── Certificados
+    │   └── [Rótulo] Senha + histórico
     └── Usuários
         ├── Nome de usuário
         ├── Senha atual
@@ -96,10 +99,12 @@ The server shuts down automatically after **30 minutes of inactivity** — just 
 - **Clients** — add and manage multiple clients in the sidebar.
 - **Locations** — each client can have one or more locations (e.g. Main, Branch).
 - **Users** — each location has its own users with username and password.
-- **Certificate password** — stored per location, with change history.
+- **Certificates** — each location supports multiple named certificates (e.g. Main, Admin, VPN), each with its own password and change history.
 - **Password history** — old passwords are saved automatically when changed.
 - **One-click copy** — ⧉ button next to each credential copies it to the clipboard.
 - **Copy client** — Copy button next to Print copies all of a client's credentials to the clipboard in plain text.
+- **Password visibility toggle** — show or hide all passwords at once with the Visible/Hidden button in the header.
+- **Sort** — the client list and user list each have an A–Z / Z–A sort toggle.
 - **Export / Import** — share the JSON file with coworkers. Version conflicts are detected automatically. If the incoming file was encrypted with a different passphrase, the app prompts for it and re-encrypts with your own — no passphrase coordination required upfront.
 - **Identified version** — the version badge displays `clients-locations-users.save` (e.g. `2-3-12.38`), so you can verify the exact state of the loaded file at a glance.
 - **Print** — generates a formatted `.txt` file with all credentials (or a specific client). Passwords containing spaces are shown in quotes.
@@ -125,7 +130,8 @@ There are no individual user accounts. Only one person should edit data at a tim
 ```
 Client
 └── Location (e.g. Main, Branch)
-    ├── Certificate password
+    ├── Certificates
+    │   └── [Label] Password + history
     └── Users
         ├── Username
         ├── Current password

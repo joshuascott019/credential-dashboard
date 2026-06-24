@@ -65,6 +65,8 @@ On narrow screens (or when the window is squeezed to the side of your monitor), 
 
 **Location tabs** appear below the client name. If a client has multiple locations (e.g. Main, Branch), click the tab to switch between them.
 
+**Sort** — the **↕** button in the sidebar header cycles the client list through unsorted → A–Z → Z–A. The same button in the Users section header does the same for users.
+
 **Version badge** — shown in the header. Displays the format `clients-locations-users.save` (for example, `2-3-12.38`). The first three numbers reflect how many clients, locations, and users are currently in the file. The number after the dot is a sequential save counter and is the true unique identifier — the higher it is, the newer the file.
 
 ---
@@ -76,7 +78,7 @@ Each credential has a **⧉** button to its right. Click it to copy the value to
 - The button briefly shows **✓** to confirm the copy.
 - Copy buttons are available in both read-only and admin mode.
 
-For certificate passwords, the value is masked (••••••••) in the main view but visible in the history panel.
+Use the **Visible/Hidden** button in the header to show or hide all passwords (cert and user) across the app at once. The row of the last-copied credential is highlighted with a green accent to confirm which value was copied.
 
 ---
 
@@ -150,17 +152,23 @@ Click **✕** on the user's card. This cannot be undone.
 
 ---
 
-## 12. Certificate passwords
+## 12. Certificates
 
 > Editing requires admin mode. Viewing and copying are available in read-only mode.
 
-Each location has a certificate password field, shown at the top of the location panel.
+Each location can hold multiple certificates, each identified by a label (e.g. Main, Admin, VPN). Certificates are listed in the cert section at the top of the location panel.
 
-**Edit the cert password:**
-Click **Edit** next to the cert password field. Enter the new password and click Save. The previous password is saved to cert password history automatically.
+**Add a certificate:**
+Click **+ Add Cert** (visible in admin mode). Enter a label and optionally a password, then click Save.
+
+**Edit a certificate:**
+Click **Edit** on the cert row. You can update the label and set a new password. Leave the password field blank to keep the current one. The previous password is saved to history automatically.
+
+**Delete a certificate:**
+Click **✕** on the cert row. This cannot be undone.
 
 **View cert password history:**
-Click the **Old Passwords** button in the cert password row to expand the history panel.
+Click **Old Passwords** on the cert row to expand the history panel.
 
 ---
 
@@ -169,7 +177,7 @@ Click the **Old Passwords** button in the cert password row to expand the histor
 Password history is visible for both users and cert passwords. It shows each old password and the date it was changed.
 
 - For users: click **Old Passwords (n)** at the bottom-right of the user card to expand.
-- For cert passwords: click **Old Passwords (n)** in the cert password row.
+- For certs: click **Old Passwords (n)** on the cert row.
 
 Each entry has a **⧉** copy button.
 

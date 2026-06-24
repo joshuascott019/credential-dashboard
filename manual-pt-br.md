@@ -67,6 +67,8 @@ Em telas estreitas (ou quando a janela está comprimida ao lado do monitor), a b
 
 As **abas de localização** aparecem abaixo do nome do cliente. Se um cliente tem múltiplos locais (ex: Matriz, Filial), clique na aba para alternar entre eles.
 
+**Ordenação** — o botão **↕** no cabeçalho da barra lateral ordena a lista de clientes; o mesmo botão na seção Usuários ordena os usuários. Clique para alternar: sem ordenação → A–Z → Z–A.
+
 **Badge de versão** — exibido no cabeçalho. Mostra o formato `clientes-locais-usuários.salvamento` (por exemplo, `2-3-12.38`). Os três primeiros números indicam quantos clientes, locais e usuários existem no arquivo. O número após o ponto é um contador sequencial de salvamentos e é o identificador único real — quanto maior, mais recente é o arquivo.
 
 ---
@@ -78,7 +80,7 @@ Cada credencial tem um botão **⧉** à sua direita. Clique nele para copiar o 
 - O botão exibe brevemente **✓** para confirmar a cópia.
 - Os botões de cópia estão disponíveis tanto no modo leitura quanto no modo admin.
 
-A senha do certificado é mascarada (••••••••) na visualização principal, mas fica visível no painel de histórico.
+Use o botão **Visível/Oculto** no cabeçalho para exibir ou ocultar todas as senhas (certificado e usuário) no app de uma vez. A linha da última credencial copiada é destacada com um realce verde para confirmar qual valor foi copiado.
 
 ---
 
@@ -152,17 +154,23 @@ Clique em **✕** no cartão do usuário. Essa ação não pode ser desfeita.
 
 ---
 
-## 12. Senhas de certificado
+## 12. Certificados
 
 > A edição requer modo admin. Visualização e cópia estão disponíveis no modo leitura.
 
-Cada localização tem um campo de senha de certificado, exibido no topo do painel de localização.
+Cada local pode ter múltiplos certificados, cada um identificado por um rótulo (ex: Principal, Admin, VPN). Os certificados são listados na seção de cert no topo do painel de localização.
 
-**Editar a senha do certificado:**
-Clique em **Editar** ao lado do campo de senha do certificado. Digite a nova senha e clique em Salvar. A senha anterior é salva no histórico automaticamente.
+**Adicionar um certificado:**
+Clique em **+ Adicionar Cert.** (visível no modo admin). Digite um rótulo e, opcionalmente, uma senha, depois clique em Salvar.
+
+**Editar um certificado:**
+Clique em **Editar** na linha do certificado. Você pode atualizar o rótulo e definir uma nova senha. Deixe o campo de senha em branco para manter a atual. A senha anterior é salva no histórico automaticamente.
+
+**Excluir um certificado:**
+Clique em **✕** na linha do certificado. Essa ação não pode ser desfeita.
 
 **Ver histórico da senha do certificado:**
-Clique no botão **Senhas Antigas** na linha da senha do certificado para expandir o painel de histórico.
+Clique em **Senhas Antigas** na linha do certificado para expandir o painel de histórico.
 
 ---
 
@@ -171,7 +179,7 @@ Clique no botão **Senhas Antigas** na linha da senha do certificado para expand
 O histórico de senhas está disponível para usuários e senhas de certificado. Exibe cada senha antiga e a data em que foi alterada.
 
 - Para usuários: clique em **Senhas Antigas (n)** no canto inferior direito do cartão do usuário para expandir.
-- Para senhas de certificado: clique em **Senhas Antigas (n)** na linha da senha do certificado.
+- Para certificados: clique em **Senhas Antigas (n)** na linha do certificado.
 
 Cada entrada tem um botão **⧉** para copiar.
 
