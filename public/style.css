@@ -203,9 +203,11 @@ h1 {
 /* ---- Main panel ---- */
 #main-panel {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 20px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .placeholder {
@@ -293,6 +295,11 @@ h1 {
   border-top: none;
   border-radius: 0 0 8px 8px;
   padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .location-actions-bar {
@@ -319,6 +326,12 @@ h1 {
   margin-bottom: 18px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border);
+}
+
+.cert-entry + .cert-entry {
+  border-top: 1px solid var(--border);
+  margin-top: 8px;
+  padding-top: 8px;
 }
 
 .cert-row {
@@ -360,6 +373,13 @@ h1 {
 }
 
 /* ---- Users section ---- */
+.users-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -375,10 +395,30 @@ h1 {
   letter-spacing: 0.06em;
 }
 
+.section-header-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-sort.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .users-list {
   display: flex;
   flex-direction: column;
   gap: 3px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.copy-highlight {
+  background: rgba(63, 185, 80, 0.09);
+  border-radius: 4px;
+  box-shadow: inset 3px 0 0 var(--success);
+  padding-left: 6px;
 }
 
 /* ---- User row ---- */
@@ -387,6 +427,7 @@ h1 {
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .user-card {

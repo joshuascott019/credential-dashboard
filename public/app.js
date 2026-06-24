@@ -105,6 +105,18 @@ const LANGS = {
     adminConfirmTitle: 'Enter Admin Mode',
     adminConfirmBody: 'You are about to enter admin mode. In this mode you can add, edit, and delete clients, locations, users, and credentials. Only proceed if you intend to make changes.',
     btnEnterAdmin: 'Enter Admin Mode',
+    btnPwVisible: 'Visible',
+    btnPwHidden: 'Hidden',
+    noCertsYet: 'No certs',
+    addCertBtn: '+ Add Cert',
+    modalAddCert: 'Add Cert',
+    modalEditCert2: 'Edit Cert',
+    labelCertLabel: 'Cert Label',
+    phCertLabel: 'e.g. Main, Admin, VPN',
+    confirmDeleteCert: (label) => `Delete cert "${label}"?`,
+    btnSortNone: '↕',
+    btnSortAsc: 'A–Z',
+    btnSortDesc: 'Z–A',
   },
   'pt-br': {
     locale: 'pt-BR',
@@ -211,6 +223,18 @@ const LANGS = {
     adminConfirmTitle: 'Entrar no Modo Admin',
     adminConfirmBody: 'Você está prestes a entrar no modo administrador. Neste modo é possível adicionar, editar e excluir clientes, locais, usuários e credenciais. Prossiga somente se quiser fazer alterações.',
     btnEnterAdmin: 'Entrar no Modo Admin',
+    btnPwVisible: 'Visível',
+    btnPwHidden: 'Oculto',
+    noCertsYet: 'Nenhum cert.',
+    addCertBtn: '+ Adicionar Cert.',
+    modalAddCert: 'Adicionar Certificado',
+    modalEditCert2: 'Editar Certificado',
+    labelCertLabel: 'Rótulo do Cert.',
+    phCertLabel: 'Ex: Principal, Admin, VPN',
+    confirmDeleteCert: (label) => `Excluir certificado "${label}"?`,
+    btnSortNone: '↕',
+    btnSortAsc: 'A–Z',
+    btnSortDesc: 'Z–A',
   },
 };
 
@@ -221,6 +245,10 @@ let selectedLocationId = null;
 let currentLang = 'pt-br';
 let t = LANGS['pt-br'];
 let isAdminMode = false;
+let passwordsVisible = true;
+let lastCopied = null;
+let clientSort = null; // null | 'asc' | 'desc'
+let userSort = null;   // null | 'asc' | 'desc'
 let cryptoKey = null;
 let cryptoSalt = null;
 let masterPassphrase = null;
@@ -256,6 +284,7 @@ function applyStaticText() {
   langSelect.options[0].textContent = t.langLabel;
   langSelect.value = '';
   document.getElementById('clients-label').textContent = t.sidebarClients;
+  document.getElementById('pw-toggle-btn').textContent = passwordsVisible ? t.btnPwVisible : t.btnPwHidden;
 }
 
 // ---- Utilities ----
@@ -287,6 +316,13 @@ async function copyToClipboard(text, button) {
   } catch {
     showToast(t.toastCopyFailed, 'error');
   }
+}
+
+function setLastCopied(key) {
+  lastCopied = key;
+  document.querySelectorAll('.copy-highlight').forEach((el) => el.classList.remove('copy-highlight'));
+  const el = document.querySelector(`[data-copy-key="${key}"]`);
+  if (el) el.classList.add('copy-highlight');
 }
 
 function showToast(message, type = 'success') {
@@ -492,13 +528,21 @@ async function unlockAndLoadData() {
     };
   }
 
+  let needsMigration = false;
   appData.clients.forEach((client) => {
     client.locations.forEach((loc) => {
-      if (!loc.certPasswordHistory) loc.certPasswordHistory = [];
+      if (!loc.certs) {
+        needsMigration = true;
+        loc.certs = (loc.certPassword || loc.certPasswordHistory?.length)
+          ? [{ id: generateId(), label: 'Cert', password: loc.certPassword || '', history: loc.certPasswordHistory || [] }]
+          : [];
+        delete loc.certPassword;
+        delete loc.certPasswordHistory;
+      }
     });
   });
 
-  if (!raw.encrypted) await saveData();
+  if (!raw.encrypted || needsMigration) await saveData();
 }
 
 // ---- Admin mode ----
@@ -583,18 +627,28 @@ function updateVersionBadge() {
 
 function renderClientList() {
   const list = document.getElementById('client-list');
+
+  const btn = document.getElementById('client-sort-btn');
+  if (btn) {
+    btn.textContent = clientSort === 'asc' ? t.btnSortAsc : clientSort === 'desc' ? t.btnSortDesc : t.btnSortNone;
+    btn.classList.toggle('active', clientSort !== null);
+  }
+
   if (!appData.clients.length) {
     list.innerHTML = `<p class="list-empty" style="padding:10px 14px">${t.noClientsYet}</p>`;
     return;
   }
-  list.innerHTML = appData.clients
-    .map(
-      (c) => `
+
+  let clients = [...appData.clients];
+  if (clientSort === 'asc') clients.sort((a, b) => a.name.localeCompare(b.name, t.locale));
+  else if (clientSort === 'desc') clients.sort((a, b) => b.name.localeCompare(a.name, t.locale));
+
+  list.innerHTML = clients
+    .map((c) => `
     <div class="client-item ${c.id === selectedClientId ? 'active' : ''}" data-client-id="${c.id}">
       ${escapeHtml(c.name)}
     </div>
-  `,
-    )
+  `)
     .join('');
   list.querySelectorAll('.client-item').forEach((item) => {
     item.onclick = () => selectClient(item.dataset.clientId);
@@ -678,8 +732,42 @@ function renderMainPanel() {
   if (location) bindLocationActions(client, location);
 }
 
+function renderCertRowHTML(cert) {
+  const histCount = cert.history?.length || 0;
+  return `
+    <div class="cert-entry">
+      <div class="cert-row${lastCopied === `cert-${cert.id}` ? ' copy-highlight' : ''}" data-copy-key="cert-${cert.id}">
+        <span class="field-label">${escapeHtml(cert.label)}</span>
+        <span class="field-masked">${cert.password ? (passwordsVisible ? escapeHtml(cert.password) : '••••••••') : `<em>${t.certNone}</em>`}</span>
+        <button class="btn-copy copy-cert-btn" data-cert-id="${cert.id}" ${!cert.password ? 'disabled' : ''}>⧉</button>
+        <button class="btn-sm admin-only edit-cert-btn" data-cert-id="${cert.id}">${t.btnEdit}</button>
+        <button class="btn-danger-sm admin-only delete-cert-btn" data-cert-id="${cert.id}">✕</button>
+        <button class="btn-sm toggle-cert-hist-btn" data-cert-id="${cert.id}">${t.btnOldPasswords(histCount)}</button>
+      </div>
+      <div class="cert-history hidden" id="cert-history-${cert.id}">
+        <div class="history-row">
+          <span class="history-row-label">${t.labelCurrent}</span>
+          <span class="history-value">${cert.password ? (passwordsVisible ? escapeHtml(cert.password) : '••••••••') : `<em style="color:var(--text-muted)">${t.certNone}</em>`}</span>
+          ${cert.password ? `<button class="btn-copy copy-cert-current-btn" data-cert-id="${cert.id}">⧉</button>` : ''}
+        </div>
+        ${histCount ? `
+          <div class="history-prev-list">
+            ${cert.history.map((h) => `
+              <div class="history-prev-item">
+                <span class="history-row-label" style="font-size:11px;color:var(--text-muted)">${t.labelPreviously}</span>
+                <span class="history-value">${passwordsVisible ? escapeHtml(h.password) : '••••••••'}</span>
+                <button class="btn-copy copy-cert-hist-btn" data-cert-id="${cert.id}" data-password="${escapeHtml(h.password)}">⧉</button>
+                <span class="history-date">${new Date(h.changedAt).toLocaleDateString(t.locale)}</span>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
 function renderLocationHTML(client, location) {
-  const histCount = location.certPasswordHistory?.length || 0;
   return `
     <div class="location-content">
       <div class="location-actions-bar">
@@ -693,53 +781,28 @@ function renderLocationHTML(client, location) {
       </div>
 
       <div class="cert-section">
-        <div class="cert-row">
-          <span class="field-label">${t.certPassword}</span>
-          <span class="field-masked">${location.certPassword ? '••••••••' : `<em>${t.certNone}</em>`}</span>
-          <button class="btn-copy" id="copy-cert-btn" ${!location.certPassword ? 'disabled' : ''}>⧉</button>
-          <button class="btn-sm admin-only" id="edit-cert-btn">${t.btnEdit}</button>
-          <button class="btn-sm" id="toggle-cert-hist-btn">${histCount ? t.btnOldPasswords(histCount) : t.btnOldPasswords(0)}</button>
-        </div>
-        <div class="cert-history hidden" id="cert-history-panel">
-          <div class="history-row">
-            <span class="history-row-label">${t.labelCurrent}</span>
-            <span class="history-value">${escapeHtml(location.certPassword) || `<em style="color:var(--text-muted)">${t.certNone}</em>`}</span>
-            ${location.certPassword ? `<button class="btn-copy" id="copy-cert-current-btn">⧉</button>` : ''}
-          </div>
-          ${
-            histCount
-              ? `
-            <div class="history-prev-list">
-              ${location.certPasswordHistory
-                .map(
-                  (h) => `
-                <div class="history-prev-item">
-                  <span class="history-row-label" style="font-size:11px;color:var(--text-muted)">${t.labelPreviously}</span>
-                  <span class="history-value">${escapeHtml(h.password)}</span>
-                  <button class="btn-copy copy-cert-hist-btn" data-password="${escapeHtml(h.password)}">⧉</button>
-                  <span class="history-date">${new Date(h.changedAt).toLocaleDateString(t.locale)}</span>
-                </div>
-              `,
-                )
-                .join('')}
-            </div>
-          `
-              : ''
-          }
-        </div>
+        ${location.certs.length === 0 ? `<p class="list-empty">${t.noCertsYet}</p>` : ''}
+        ${location.certs.map((cert) => renderCertRowHTML(cert)).join('')}
+        <button class="btn-sm admin-only" id="add-cert-btn" style="margin-top:8px">${t.addCertBtn}</button>
       </div>
 
       <div class="users-section">
         <div class="section-header">
           <h3>${t.sectionUsers}</h3>
-          <button class="btn-primary admin-only" id="add-user-btn">${t.addUserBtn}</button>
+          <div class="section-header-actions">
+            <button class="btn-sort btn-sm${userSort !== null ? ' active' : ''}" id="user-sort-btn">${userSort === 'asc' ? t.btnSortAsc : userSort === 'desc' ? t.btnSortDesc : t.btnSortNone}</button>
+            <button class="btn-primary admin-only" id="add-user-btn">${t.addUserBtn}</button>
+          </div>
         </div>
         <div class="users-list" id="users-list">
-          ${
-            location.users.length
-              ? location.users.map((user) => renderUserRowHTML(user)).join('')
-              : `<p class="list-empty">${t.noUsersYet}</p>`
-          }
+          ${(() => {
+            let users = [...location.users];
+            if (userSort === 'asc') users.sort((a, b) => a.username.localeCompare(b.username, t.locale));
+            else if (userSort === 'desc') users.sort((a, b) => b.username.localeCompare(a.username, t.locale));
+            return users.length
+              ? users.map((user) => renderUserRowHTML(user)).join('')
+              : `<p class="list-empty">${t.noUsersYet}</p>`;
+          })()}
         </div>
       </div>
     </div>
@@ -752,14 +815,14 @@ function renderUserRowHTML(user) {
     <div class="user-row" data-user-id="${user.id}">
       <div class="user-card">
         <div class="user-creds">
-          <div class="user-cred-item">
+          <div class="user-cred-item${lastCopied === `user-${user.id}-username` ? ' copy-highlight' : ''}" data-copy-key="user-${user.id}-username">
             <span class="cred-label">${t.credUser}</span>
             <span class="cred-value">${escapeHtml(user.username)}</span>
             <button class="btn-copy copy-username-btn" title="${t.labelUsername}">⧉</button>
           </div>
-          <div class="user-cred-item">
+          <div class="user-cred-item${lastCopied === `user-${user.id}-password` ? ' copy-highlight' : ''}" data-copy-key="user-${user.id}-password">
             <span class="cred-label">${t.credPass}</span>
-            <span class="cred-value">${escapeHtml(user.currentPassword)}</span>
+            <span class="cred-value">${passwordsVisible ? escapeHtml(user.currentPassword) : '••••••••'}</span>
             <button class="btn-copy copy-password-btn" title="${t.labelPassword}">⧉</button>
           </div>
         </div>
@@ -779,7 +842,7 @@ function renderUserRowHTML(user) {
       <div class="user-history hidden" id="history-${user.id}">
         <div class="history-row">
           <span class="history-row-label">${t.labelCurrent}</span>
-          <span class="history-value">${escapeHtml(user.currentPassword)}</span>
+          <span class="history-value">${passwordsVisible ? escapeHtml(user.currentPassword) : '••••••••'}</span>
           <button class="btn-copy copy-history-btn" data-password="${escapeHtml(user.currentPassword)}">⧉</button>
         </div>
         ${
@@ -791,7 +854,7 @@ function renderUserRowHTML(user) {
                 (h) => `
               <div class="history-prev-item">
                 <span class="history-row-label" style="font-size:11px;color:var(--text-muted)">${t.labelPreviously}</span>
-                <span class="history-value">${escapeHtml(h.password)}</span>
+                <span class="history-value">${passwordsVisible ? escapeHtml(h.password) : '••••••••'}</span>
                 <button class="btn-copy copy-history-btn" data-password="${escapeHtml(h.password)}">⧉</button>
                 <span class="history-date">${new Date(h.changedAt).toLocaleDateString(t.locale)}</span>
               </div>
@@ -815,25 +878,32 @@ function bindLocationActions(client, location) {
   if (delLocBtn)
     delLocBtn.onclick = () => deleteLocation(client.id, location.id);
 
-  document.getElementById('copy-cert-btn').onclick = (e) =>
-    copyToClipboard(location.certPassword, e.target);
-  document.getElementById('edit-cert-btn').onclick = () =>
-    editCertPassword(client.id, location.id);
+  document.getElementById('add-cert-btn').onclick = () =>
+    addCert(client.id, location.id);
 
-  document.getElementById('toggle-cert-hist-btn').onclick = (e) => {
-    document.getElementById('cert-history-panel').classList.toggle('hidden');
-    e.target.classList.toggle('open');
-  };
-
-  document
-    .getElementById('copy-cert-current-btn')
-    ?.addEventListener('click', (e) => {
-      copyToClipboard(location.certPassword, e.target);
-    });
-
-  document.querySelectorAll('.copy-cert-hist-btn').forEach((btn) => {
-    btn.onclick = (e) => copyToClipboard(e.target.dataset.password, e.target);
+  document.querySelector('.cert-section').addEventListener('click', (e) => {
+    const certId = e.target.dataset.certId;
+    if (!certId) return;
+    const cert = location.certs.find((c) => c.id === certId);
+    if (e.target.classList.contains('copy-cert-btn') || e.target.classList.contains('copy-cert-current-btn')) {
+      if (cert) { setLastCopied(`cert-${certId}`); copyToClipboard(cert.password, e.target); }
+    } else if (e.target.classList.contains('copy-cert-hist-btn')) {
+      setLastCopied(`cert-${certId}`);
+      copyToClipboard(e.target.dataset.password, e.target);
+    } else if (e.target.classList.contains('edit-cert-btn')) {
+      editCert(client.id, location.id, certId);
+    } else if (e.target.classList.contains('delete-cert-btn')) {
+      deleteCert(client.id, location.id, certId);
+    } else if (e.target.classList.contains('toggle-cert-hist-btn')) {
+      document.getElementById(`cert-history-${certId}`).classList.toggle('hidden');
+      e.target.classList.toggle('open');
+    }
   });
+
+  document.getElementById('user-sort-btn').onclick = () => {
+    userSort = userSort === null ? 'asc' : userSort === 'asc' ? 'desc' : null;
+    renderMainPanel();
+  };
 
   document.getElementById('add-user-btn').onclick = () =>
     addUser(client.id, location.id);
@@ -845,8 +915,10 @@ function bindLocationActions(client, location) {
     if (!user) return;
 
     if (e.target.classList.contains('copy-username-btn')) {
+      setLastCopied(`user-${user.id}-username`);
       copyToClipboard(user.username, e.target);
     } else if (e.target.classList.contains('copy-password-btn')) {
+      setLastCopied(`user-${user.id}-password`);
       copyToClipboard(user.currentPassword, e.target);
     } else if (e.target.classList.contains('toggle-history-btn')) {
       document.getElementById(`history-${user.id}`).classList.toggle('hidden');
@@ -856,6 +928,7 @@ function bindLocationActions(client, location) {
     } else if (e.target.classList.contains('delete-user-btn')) {
       deleteUser(client.id, location.id, user.id);
     } else if (e.target.classList.contains('copy-history-btn')) {
+      setLastCopied(`user-${user.id}-password`);
       copyToClipboard(e.target.dataset.password, e.target);
     }
   });
@@ -885,8 +958,7 @@ function addClient() {
           {
             id: generateId(),
             name: t.headquarters,
-            certPassword: '',
-            certPasswordHistory: [],
+            certs: [],
             users: [],
           },
         ],
@@ -954,8 +1026,7 @@ function addLocation(clientId) {
       const loc = {
         id: generateId(),
         name,
-        certPassword: '',
-        certPasswordHistory: [],
+        certs: [],
         users: [],
       };
       client.locations.push(loc);
@@ -1001,67 +1072,97 @@ function deleteLocation(clientId, locationId) {
   renderMainPanel();
 }
 
-// ---- Cert Password ----
+// ---- Cert CRUD ----
 
-function editCertPassword(clientId, locationId) {
+function addCert(clientId, locationId) {
   const client = appData.clients.find((c) => c.id === clientId);
   const loc = client.locations.find((l) => l.id === locationId);
-  if (!loc.certPasswordHistory) loc.certPasswordHistory = [];
+  showModal(
+    t.modalAddCert,
+    `
+    <div class="form-group">
+      <label>${t.labelCertLabel}</label>
+      <input type="text" id="f-cert-label" placeholder="${t.phCertLabel}" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>${t.labelCertNew}</label>
+      <input type="text" id="f-cert" placeholder="${t.phCertPass}" autocomplete="off">
+    </div>
+    `,
+    () => {
+      const label = document.getElementById('f-cert-label').value.trim();
+      if (!label) { showToast(t.toastNameRequired, 'error'); return false; }
+      loc.certs.push({ id: generateId(), label, password: document.getElementById('f-cert').value, history: [] });
+      saveData();
+      renderMainPanel();
+    },
+  );
+}
 
-  const histHTML = loc.certPasswordHistory.length
+function editCert(clientId, locationId, certId) {
+  const client = appData.clients.find((c) => c.id === clientId);
+  const loc = client.locations.find((l) => l.id === locationId);
+  const cert = loc.certs.find((c) => c.id === certId);
+  if (!cert.history) cert.history = [];
+
+  const histHTML = cert.history.length
     ? `
     <div class="form-group">
       <label>${t.labelCertHistory}</label>
       <div class="modal-history-list">
-        ${loc.certPasswordHistory
-          .map(
-            (h) => `
+        ${cert.history.map((h) => `
           <div class="modal-history-item">
             <span>${escapeHtml(h.password)}</span>
             <small>${new Date(h.changedAt).toLocaleDateString(t.locale)}</small>
           </div>
-        `,
-          )
-          .join('')}
+        `).join('')}
       </div>
     </div>
-  `
+    `
     : '';
 
   showModal(
-    t.modalEditCert,
+    t.modalEditCert2,
     `
-    ${
-      loc.certPassword
-        ? `
+    <div class="form-group">
+      <label>${t.labelCertLabel}</label>
+      <input type="text" id="f-cert-label" value="${escapeHtml(cert.label)}" autocomplete="off">
+    </div>
+    ${cert.password ? `
       <div class="form-group">
         <label>${t.labelCertCurrent}</label>
-        <div class="current-pass-display">${escapeHtml(loc.certPassword)}</div>
+        <div class="current-pass-display">${escapeHtml(cert.password)}</div>
       </div>
-    `
-        : ''
-    }
+    ` : ''}
     <div class="form-group">
-      <label>${t.labelCertNew}${loc.certPassword ? ' ' + t.labelCertLeaveBlank : ''}</label>
-      <input type="text" id="f-cert" value="${escapeHtml(loc.certPassword || '')}" autocomplete="off">
+      <label>${t.labelCertNew}${cert.password ? ' ' + t.labelCertLeaveBlank : ''}</label>
+      <input type="text" id="f-cert" placeholder="${t.phCertPass}" autocomplete="off">
     </div>
     ${histHTML}
-  `,
+    `,
     () => {
+      const newLabel = document.getElementById('f-cert-label').value.trim();
+      if (!newLabel) { showToast(t.toastNameRequired, 'error'); return false; }
+      cert.label = newLabel;
       const newPass = document.getElementById('f-cert').value;
-      if (newPass !== loc.certPassword) {
-        if (loc.certPassword) {
-          loc.certPasswordHistory.unshift({
-            password: loc.certPassword,
-            changedAt: new Date().toISOString(),
-          });
-        }
-        loc.certPassword = newPass;
-        saveData();
-        renderMainPanel();
+      if (newPass !== '' && newPass !== cert.password) {
+        if (cert.password) cert.history.unshift({ password: cert.password, changedAt: new Date().toISOString() });
+        cert.password = newPass;
       }
+      saveData();
+      renderMainPanel();
     },
   );
+}
+
+function deleteCert(clientId, locationId, certId) {
+  const client = appData.clients.find((c) => c.id === clientId);
+  const loc = client.locations.find((l) => l.id === locationId);
+  const cert = loc.certs.find((c) => c.id === certId);
+  if (!confirm(t.confirmDeleteCert(cert.label))) return;
+  loc.certs = loc.certs.filter((c) => c.id !== certId);
+  saveData();
+  renderMainPanel();
 }
 
 // ---- User CRUD ----
@@ -1213,12 +1314,15 @@ function exportTxt(clientId = null) {
     client.locations.forEach((loc, li) => {
       lines.push('');
       lines.push(`  ${ci + 1}.${li + 1}  ${loc.name}`);
-      lines.push(`       ${t.txtCertLabel} ${loc.certPassword ? fmtPW(loc.certPassword) : t.txtNone}`);
-
-      if (loc.certPasswordHistory?.length) {
-        lines.push(`       ${t.txtCertHistLabel}`);
-        loc.certPasswordHistory.forEach((h) => {
-          lines.push(`         - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
+      if (loc.certs?.length) {
+        loc.certs.forEach((cert) => {
+          lines.push(`       ${t.txtCertLabel} [${cert.label}] ${cert.password ? fmtPW(cert.password) : t.txtNone}`);
+          if (cert.history?.length) {
+            lines.push(`       ${t.txtCertHistLabel} [${cert.label}]`);
+            cert.history.forEach((h) => {
+              lines.push(`         - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
+            });
+          }
         });
       }
 
@@ -1278,15 +1382,13 @@ function copyClientData(clientId) {
     lines.push('');
     lines.push(`  ${loc.name}`);
 
-    if (loc.certPassword) {
-      lines.push(`  ${t.txtCertLabel} ${fmtPW(loc.certPassword)}`);
-    }
-    if (loc.certPasswordHistory?.length) {
-      lines.push(`  ${t.txtCertHistLabel}`);
-      loc.certPasswordHistory.forEach((h) => {
-        lines.push(`    - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`);
-      });
-    }
+    loc.certs?.forEach((cert) => {
+      if (cert.password) lines.push(`  ${t.txtCertLabel} [${cert.label}] ${fmtPW(cert.password)}`);
+      if (cert.history?.length) {
+        lines.push(`  ${t.txtCertHistLabel} [${cert.label}]`);
+        cert.history.forEach((h) => lines.push(`    - ${fmtPW(h.password)}  (${fmtDate(h.changedAt)})`));
+      }
+    });
 
     if (loc.users.length) {
       lines.push('');
@@ -1429,6 +1531,17 @@ async function init() {
 
   document.getElementById('admin-btn').onclick = () =>
     isAdminMode ? exitAdminMode() : enterAdminMode();
+
+  document.getElementById('client-sort-btn').onclick = () => {
+    clientSort = clientSort === null ? 'asc' : clientSort === 'asc' ? 'desc' : null;
+    renderClientList();
+  };
+
+  document.getElementById('pw-toggle-btn').onclick = () => {
+    passwordsVisible = !passwordsVisible;
+    document.getElementById('pw-toggle-btn').textContent = passwordsVisible ? t.btnPwVisible : t.btnPwHidden;
+    render();
+  };
 
   document.getElementById('add-client-btn').onclick = addClient;
   document.getElementById('export-btn').onclick = exportJson;
