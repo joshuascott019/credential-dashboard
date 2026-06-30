@@ -4,6 +4,7 @@ const path = require('path');
 
 const app = express();
 const DATA_FILE = path.join(__dirname, 'data', 'credentials.json');
+const SERVERS_FILE = path.join(__dirname, 'data', 'servers.json');
 const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
@@ -34,6 +35,22 @@ function ensureDataFile() {
       clients: []
     }, null, 2));
   }
+}
+
+function ensureServersFile() {
+  if (!fs.existsSync(SERVERS_FILE)) {
+    fs.writeFileSync(SERVERS_FILE, JSON.stringify({ encrypted: false, servers: [] }, null, 2));
+  }
+}
+
+function isValidServersPayload(data) {
+  if (typeof data !== 'object' || data === null) return false;
+  if (data.encrypted) {
+    return typeof data.salt === 'string'
+        && typeof data.iv === 'string'
+        && typeof data.data === 'string';
+  }
+  return Array.isArray(data.servers);
 }
 
 function readData() {
@@ -84,6 +101,25 @@ app.get('/api/export', (req, res) => {
   }
 });
 
+app.get('/api/servers', (req, res) => {
+  try {
+    ensureServersFile();
+    res.json(JSON.parse(fs.readFileSync(SERVERS_FILE, 'utf8')));
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to read servers' });
+  }
+});
+
+app.post('/api/servers', (req, res) => {
+  if (!isValidServersPayload(req.body)) return res.status(400).json({ error: 'Invalid payload' });
+  try {
+    fs.writeFileSync(SERVERS_FILE, JSON.stringify(req.body, null, 2));
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save servers' });
+  }
+});
+
 app.post('/api/import/confirm', (req, res) => {
   if (!isValidPayload(req.body)) return res.status(400).json({ error: 'Invalid payload' });
   try {
@@ -96,6 +132,7 @@ app.post('/api/import/confirm', (req, res) => {
 });
 
 ensureDataFile();
+ensureServersFile();
 app.listen(PORT, () => {
   console.log(`Credential Dashboard running at http://localhost:${PORT}`);
   resetIdleTimer();

@@ -10,27 +10,27 @@
   <div id="app">
     <header>
       <div class="header-left">
-        <button id="hamburger-btn" class="btn-icon" title="Toggle clients">≡</button>
+        <button id="hamburger-btn" class="btn-icon" title="Toggle sidebar">☰</button>
         <h1 id="app-title">Credentials</h1>
         <span id="version-badge"></span>
+        <span class="admin-badge admin-only">ADMIN</span>
       </div>
       <div class="header-right">
-        <button id="admin-btn" class="btn-admin">Admin</button>
-        <button id="pw-toggle-btn" class="btn-secondary">Visible</button>
-        <button id="export-txt-btn" class="btn-secondary">Print</button>
-        <button id="export-btn" class="btn-secondary">Export</button>
-        <button id="import-btn" class="btn-secondary admin-only">Import</button>
-        <select id="lang-select" class="lang-select">
-          <option value="" disabled selected></option>
-          <option value="en">English</option>
-          <option value="pt-br">Português</option>
-        </select>
         <input type="file" id="import-file" accept=".json">
+        <button id="right-panel-btn" class="btn-icon" title="Settings">⚙</button>
       </div>
     </header>
 
     <div id="layout">
       <aside id="sidebar">
+        <div id="servers-section">
+          <div class="sidebar-header">
+            <span id="servers-label">Servers</span>
+            <button id="add-server-btn" class="btn-icon admin-only" title="Add server">+</button>
+          </div>
+          <div id="server-list"></div>
+        </div>
+
         <div class="sidebar-header">
           <span id="clients-label">Clients</span>
           <button id="client-sort-btn" class="btn-sort btn-icon" title="Sort clients">↕</button>
@@ -39,26 +39,50 @@
         <div id="client-list"></div>
       </aside>
 
-      <div id="sidebar-overlay" class="hidden"></div>
+      <div id="sidebar-overlay"></div>
 
       <main id="main-panel">
         <p class="placeholder">Select a client to view credentials</p>
       </main>
     </div>
-  </div>
 
-  <div id="modal-overlay" class="hidden">
-    <div id="modal">
-      <h3 id="modal-title"></h3>
-      <div id="modal-body"></div>
-      <div class="modal-footer">
-        <button id="modal-cancel" class="btn-secondary">Cancel</button>
-        <button id="modal-confirm" class="btn-primary">Save</button>
+    <div id="right-panel">
+      <div class="right-panel-header">
+        <span id="right-panel-title">Settings</span>
+        <button id="right-panel-close" class="btn-icon">✕</button>
+      </div>
+      <div class="right-panel-body">
+        <button id="sweep-btn" class="btn-secondary rp-btn">Sweep</button>
+        <button id="admin-btn" class="btn-admin rp-btn">Admin</button>
+        <div class="rp-divider"></div>
+        <button id="pw-toggle-btn" class="btn-secondary rp-btn">Visible</button>
+        <div class="rp-divider"></div>
+        <button id="export-txt-btn" class="btn-secondary rp-btn">Print</button>
+        <button id="export-btn" class="btn-secondary rp-btn">Export</button>
+        <button id="import-btn" class="btn-secondary rp-btn admin-only">Import</button>
+        <div class="rp-divider"></div>
+        <select id="lang-select" class="lang-select rp-lang">
+          <option value="" disabled selected></option>
+          <option value="en">English</option>
+          <option value="pt-br">Português</option>
+        </select>
       </div>
     </div>
-  </div>
+    <div id="right-panel-overlay"></div>
 
-  <div id="toast"></div>
+    <div id="modal-overlay" class="hidden">
+      <div id="modal">
+        <h3 id="modal-title"></h3>
+        <div id="modal-body"></div>
+        <div class="modal-footer">
+          <button id="modal-cancel" class="btn-secondary">Cancel</button>
+          <button id="modal-confirm" class="btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+  </div>
 
   <script src="app.js"></script>
 </body>

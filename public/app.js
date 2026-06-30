@@ -4,11 +4,14 @@ const LANGS = {
     locale: 'en-US',
     langLabel: 'Language',
     appTitle: 'Credentials',
-    btnPrint: 'Print',
-    btnExport: 'Export',
+    btnPrint: 'Export .txt',
+    btnExport: 'Backup',
     btnImport: 'Import',
+    btnSweep: 'Sweep',
     sidebarClients: 'Clients',
+    sidebarServers: 'Servers',
     noClientsYet: 'No clients yet',
+    noServersYet: 'No servers',
     selectClientHint: 'Select a client to view credentials',
     noLocations: 'No locations',
     headquarters: 'Headquarters',
@@ -27,6 +30,11 @@ const LANGS = {
     sectionUsers: 'Users',
     addUserBtn: '+ Add User',
     noUsersYet: 'No users yet',
+    statusLabel: 'Status:',
+    statusPending: 'Pending',
+    statusGood: 'Good',
+    statusIssue: 'Issue',
+    statusClosed: 'Closed',
     modalAddClient: 'Add Client',
     modalRenameClient: 'Rename Client',
     modalAddLocation: 'Add Location',
@@ -34,6 +42,8 @@ const LANGS = {
     modalEditCert: 'Edit Cert Password',
     modalAddUser: 'Add User',
     modalEditUser: 'Edit User',
+    modalAddServer: 'Add Server',
+    modalEditServer: 'Edit Server',
     labelClientName: 'Client Name',
     labelLocationName: 'Location Name',
     labelCertCurrent: 'Current',
@@ -46,13 +56,18 @@ const LANGS = {
     labelNewPass: 'New Password',
     labelNewPassHint: '<small>(leave blank to keep current)</small>',
     labelPassHistory: 'Password History',
+    labelServerLabel: 'Label',
+    labelServerAddress: 'Address',
     phClientName: 'e.g. Acme Corp',
     phLocationName: 'e.g. Store 2, Downtown',
     phCertPass: 'Certificate password',
     phUsername: 'e.g. john.doe',
     phPassword: 'Password',
     phNewPassword: 'Enter new password to change',
+    phServerLabel: 'e.g. Main, DR, Staging',
+    phServerAddress: 'e.g. 192.168.1.1',
     btnCancel: 'Cancel',
+    btnConfirm: 'Confirm',
     btnSave: 'Save',
     toastSaved: 'Saved',
     toastCopyFailed: 'Copy failed',
@@ -63,10 +78,13 @@ const LANGS = {
     toastNameRequired: 'Name is required',
     toastUsernameRequired: 'Username is required',
     toastPasswordRequired: 'Password is required',
+    toastAddressRequired: 'Address is required',
     confirmDeleteClient: (name) => `Delete "${name}" and all its data?`,
     confirmDeleteLocation: (name) =>
       `Delete location "${name}" and all its users?`,
     confirmDeleteUser: (name) => `Delete user "${name}"?`,
+    confirmDeleteServer: (label) => `Delete server "${label}"?`,
+    confirmSweep: 'Mark all clients and users as Pending?',
     confirmImportNewer: (iv, cv) =>
       `Incoming file is newer (v${iv}) than your data (v${cv}).\n\nReplace your data?`,
     confirmImportOlder: (iv, cv) =>
@@ -117,16 +135,23 @@ const LANGS = {
     btnSortNone: '↕',
     btnSortAsc: 'A–Z',
     btnSortDesc: 'Z–A',
+    settingsTitle: 'Settings',
+    sectionCerts: 'Certificates',
+    tooltipCopy: 'Copy',
+    tooltipDelete: 'Delete',
   },
   'pt-br': {
     locale: 'pt-BR',
     langLabel: 'Idioma',
     appTitle: 'Credenciais',
-    btnPrint: 'Imprimir',
-    btnExport: 'Exportar',
+    btnPrint: 'Exportar .txt',
+    btnExport: 'Backup',
     btnImport: 'Importar',
+    btnSweep: 'Varredura',
     sidebarClients: 'Clientes',
+    sidebarServers: 'Servidores',
     noClientsYet: 'Nenhum cliente ainda',
+    noServersYet: 'Nenhum servidor',
     selectClientHint: 'Selecione um cliente para ver as credenciais',
     noLocations: 'Nenhuma localização',
     headquarters: 'Matriz',
@@ -145,6 +170,11 @@ const LANGS = {
     sectionUsers: 'Usuários',
     addUserBtn: '+ Adicionar Usuário',
     noUsersYet: 'Nenhum usuário ainda',
+    statusLabel: 'Status:',
+    statusPending: 'Pendente',
+    statusGood: 'Bom',
+    statusIssue: 'Problema',
+    statusClosed: 'Fechado',
     modalAddClient: 'Adicionar Cliente',
     modalRenameClient: 'Renomear Cliente',
     modalAddLocation: 'Adicionar Localização',
@@ -152,6 +182,8 @@ const LANGS = {
     modalEditCert: 'Editar Senha do Certificado',
     modalAddUser: 'Adicionar Usuário',
     modalEditUser: 'Editar Usuário',
+    modalAddServer: 'Adicionar Servidor',
+    modalEditServer: 'Editar Servidor',
     labelClientName: 'Nome do Cliente',
     labelLocationName: 'Nome da Localização',
     labelCertCurrent: 'Atual',
@@ -164,13 +196,18 @@ const LANGS = {
     labelNewPass: 'Nova Senha',
     labelNewPassHint: '<small>(deixe em branco para manter a atual)</small>',
     labelPassHistory: 'Histórico de Senhas',
+    labelServerLabel: 'Rótulo',
+    labelServerAddress: 'Endereço',
     phClientName: 'Ex: Empresa XYZ',
     phLocationName: 'Ex: Loja 2, Centro',
     phCertPass: 'Senha do certificado',
     phUsername: 'Ex: joao.silva',
     phPassword: 'Senha',
     phNewPassword: 'Digite a nova senha para alterar',
+    phServerLabel: 'Ex: Principal, DR, Staging',
+    phServerAddress: 'Ex: 192.168.1.1',
     btnCancel: 'Cancelar',
+    btnConfirm: 'Confirmar',
     btnSave: 'Salvar',
     toastSaved: 'Salvo',
     toastCopyFailed: 'Falha ao copiar',
@@ -181,10 +218,13 @@ const LANGS = {
     toastNameRequired: 'Nome é obrigatório',
     toastUsernameRequired: 'Usuário é obrigatório',
     toastPasswordRequired: 'Senha é obrigatória',
+    toastAddressRequired: 'Endereço é obrigatório',
     confirmDeleteClient: (name) => `Excluir "${name}" e todos os seus dados?`,
     confirmDeleteLocation: (name) =>
       `Excluir a localização "${name}" e todos os seus usuários?`,
     confirmDeleteUser: (name) => `Excluir o usuário "${name}"?`,
+    confirmDeleteServer: (label) => `Excluir servidor "${label}"?`,
+    confirmSweep: 'Marcar todos os clientes e usuários como Pendente?',
     confirmImportNewer: (iv, cv) =>
       `O arquivo recebido é mais recente (v${iv}) que seus dados (v${cv}).\n\nSubstituir seus dados?`,
     confirmImportOlder: (iv, cv) =>
@@ -235,11 +275,20 @@ const LANGS = {
     btnSortNone: '↕',
     btnSortAsc: 'A–Z',
     btnSortDesc: 'Z–A',
+    settingsTitle: 'Configurações',
+    sectionCerts: 'Certificados',
+    tooltipCopy: 'Copiar',
+    tooltipDelete: 'Excluir',
   },
 };
 
+// ---- Status ----
+const STATUS_ORDER = ['pending', 'good', 'issue', 'closed'];
+const STATUS_ICONS = { pending: '–', good: '✓', issue: '!', closed: '○' };
+
 // ---- State ----
 let appData = null;
+let serversData = [];
 let selectedClientId = null;
 let selectedLocationId = null;
 let currentLang = 'pt-br';
@@ -252,6 +301,7 @@ let userSort = null;   // null | 'asc' | 'desc'
 let cryptoKey = null;
 let cryptoSalt = null;
 let masterPassphrase = null;
+let activeDropdown = null;
 
 // ---- Language ----
 
@@ -280,10 +330,13 @@ function applyStaticText() {
   document.getElementById('export-txt-btn').textContent = t.btnPrint;
   document.getElementById('export-btn').textContent = t.btnExport;
   document.getElementById('import-btn').textContent = t.btnImport;
+  document.getElementById('sweep-btn').textContent = t.btnSweep;
+  document.getElementById('right-panel-title').textContent = t.settingsTitle;
   const langSelect = document.getElementById('lang-select');
   langSelect.options[0].textContent = t.langLabel;
   langSelect.value = '';
   document.getElementById('clients-label').textContent = t.sidebarClients;
+  document.getElementById('servers-label').textContent = t.sidebarServers;
   document.getElementById('pw-toggle-btn').textContent = passwordsVisible ? t.btnPwVisible : t.btnPwHidden;
 }
 
@@ -301,6 +354,11 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
+}
+
+function getStatusLabel(status) {
+  const map = { pending: t.statusPending, good: t.statusGood, issue: t.statusIssue, closed: t.statusClosed };
+  return map[status] || status;
 }
 
 async function copyToClipboard(text, button) {
@@ -335,7 +393,94 @@ function showToast(message, type = 'success') {
   }, 2500);
 }
 
+// ---- Status dropdown ----
+
+function closeStatusDropdown() {
+  if (activeDropdown) {
+    activeDropdown.remove();
+    activeDropdown = null;
+    document.removeEventListener('click', closeStatusDropdown, true);
+  }
+}
+
+function showStatusDropdown(anchorEl, currentStatus, onSelect) {
+  closeStatusDropdown();
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'status-dropdown';
+
+  STATUS_ORDER.forEach((s) => {
+    const opt = document.createElement('button');
+    opt.className = `status-dropdown-option${s === currentStatus ? ' current' : ''}`;
+    opt.innerHTML = `<span class="status-dot status-${s}"></span><span>${getStatusLabel(s)}</span>`;
+    opt.onclick = (e) => {
+      e.stopPropagation();
+      onSelect(s);
+      closeStatusDropdown();
+    };
+    dropdown.appendChild(opt);
+  });
+
+  document.getElementById('app').appendChild(dropdown);
+  activeDropdown = dropdown;
+
+  const rect = anchorEl.getBoundingClientRect();
+  const estimatedH = STATUS_ORDER.length * 34 + 2;
+  const winH = window.innerHeight;
+  const winW = window.innerWidth;
+
+  let top = rect.bottom + 4;
+  if (top + estimatedH > winH) top = rect.top - estimatedH - 4;
+  top = Math.max(4, top);
+
+  let left = rect.left;
+  if (left + 140 > winW) left = winW - 144;
+  left = Math.max(4, left);
+
+  dropdown.style.top = `${top}px`;
+  dropdown.style.left = `${left}px`;
+
+  setTimeout(() => {
+    document.addEventListener('click', closeStatusDropdown, true);
+  }, 0);
+}
+
 // ---- Modal ----
+
+function showConfirm(message, isDanger = false) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('modal-overlay');
+    const savedOnclick = overlay.onclick;
+    const done = (value) => { overlay.onclick = savedOnclick; closeModal(); resolve(value); };
+
+    document.getElementById('modal-title').textContent = '';
+    document.getElementById('modal-body').innerHTML =
+      `<p class="confirm-message">${escapeHtml(message).replace(/\n/g, '<br>')}</p>`;
+    overlay.classList.remove('hidden');
+
+    const oldConfirm = document.getElementById('modal-confirm');
+    const oldCancel = document.getElementById('modal-cancel');
+    const newConfirm = oldConfirm.cloneNode(true);
+    const newCancel = oldCancel.cloneNode(true);
+
+    newConfirm.textContent = t.btnConfirm;
+    newConfirm.className = isDanger ? 'btn-danger' : 'btn-primary';
+    newCancel.textContent = t.btnCancel;
+    newCancel.style.display = '';
+
+    oldConfirm.parentNode.replaceChild(newConfirm, oldConfirm);
+    oldCancel.parentNode.replaceChild(newCancel, oldCancel);
+
+    newConfirm.onclick = () => done(true);
+    newCancel.onclick = () => done(false);
+
+    overlay.onclick = (e) => { if (e.target.id === 'modal-overlay') done(false); };
+    overlay.onkeydown = (e) => {
+      if (e.key === 'Enter') done(true);
+      if (e.key === 'Escape') done(false);
+    };
+  });
+}
 
 function showModal(title, bodyHTML, onConfirm, confirmLabel) {
   const overlay = document.getElementById('modal-overlay');
@@ -373,13 +518,29 @@ function closeModal() {
 // ---- Sidebar toggle ----
 
 function openSidebar() {
+  closeRightPanel();
   document.getElementById('sidebar').classList.add('open');
   document.getElementById('sidebar-overlay').classList.add('visible');
+  document.getElementById('hamburger-btn').classList.add('active');
 }
 
 function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('visible');
+  document.getElementById('hamburger-btn').classList.remove('active');
+}
+
+function openRightPanel() {
+  closeSidebar();
+  document.getElementById('right-panel').classList.add('open');
+  document.getElementById('right-panel-overlay').classList.add('visible');
+  document.getElementById('right-panel-btn').classList.add('active');
+}
+
+function closeRightPanel() {
+  document.getElementById('right-panel').classList.remove('open');
+  document.getElementById('right-panel-overlay').classList.remove('visible');
+  document.getElementById('right-panel-btn').classList.remove('active');
 }
 
 // ---- Crypto ----
@@ -435,10 +596,13 @@ function showPassphraseModal(title, bodyHTML, confirmLabel, onConfirm, cancellab
     const oldCancel = document.getElementById('modal-cancel');
     const newConfirm = oldConfirm.cloneNode(true);
     const newCancel = oldCancel.cloneNode(true);
+    const savedOnclick = overlay.onclick;
+    const done = (value) => { overlay.onclick = savedOnclick; closeModal(); resolve(value); };
+
     newConfirm.textContent = confirmLabel;
     if (cancellable) {
       newCancel.textContent = t.btnCancel;
-      newCancel.onclick = () => { closeModal(); resolve(false); };
+      newCancel.onclick = () => done(false);
     } else {
       newCancel.style.display = 'none';
     }
@@ -448,16 +612,33 @@ function showPassphraseModal(title, bodyHTML, confirmLabel, onConfirm, cancellab
     overlay.onclick = null;
     overlay.onkeydown = (e) => {
       if (e.key === 'Enter') newConfirm.click();
-      if (e.key === 'Escape' && cancellable) { closeModal(); resolve(false); }
+      if (e.key === 'Escape' && cancellable) done(false);
     };
 
     newConfirm.onclick = async () => {
       const result = await onConfirm();
-      if (result !== false) { closeModal(); resolve(true); }
+      if (result !== false) done(true);
     };
 
     setTimeout(() => overlay.querySelector('input')?.focus(), 30);
   });
+}
+
+function migrateClients(clients) {
+  let migrated = false;
+  clients.forEach((client) => {
+    client.locations.forEach((loc) => {
+      if (!loc.certs) {
+        migrated = true;
+        loc.certs = (loc.certPassword || loc.certPasswordHistory?.length)
+          ? [{ id: generateId(), label: 'Cert', password: loc.certPassword || '', history: loc.certPasswordHistory || [] }]
+          : [];
+        delete loc.certPassword;
+        delete loc.certPasswordHistory;
+      }
+    });
+  });
+  return migrated;
 }
 
 async function unlockAndLoadData() {
@@ -528,19 +709,7 @@ async function unlockAndLoadData() {
     };
   }
 
-  let needsMigration = false;
-  appData.clients.forEach((client) => {
-    client.locations.forEach((loc) => {
-      if (!loc.certs) {
-        needsMigration = true;
-        loc.certs = (loc.certPassword || loc.certPasswordHistory?.length)
-          ? [{ id: generateId(), label: 'Cert', password: loc.certPassword || '', history: loc.certPasswordHistory || [] }]
-          : [];
-        delete loc.certPassword;
-        delete loc.certPasswordHistory;
-      }
-    });
-  });
+  const needsMigration = migrateClients(appData.clients);
 
   if (!raw.encrypted || needsMigration) await saveData();
 }
@@ -581,7 +750,7 @@ function exitAdminMode() {
 
 // ---- API ----
 
-async function saveData() {
+async function saveData(quiet = false) {
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const ciphertext = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
@@ -603,7 +772,62 @@ async function saveData() {
   const result = await res.json();
   appData.version = result.version;
   updateVersionBadge();
-  showToast(t.toastSaved);
+  if (!quiet) showToast(t.toastSaved);
+}
+
+async function loadServers() {
+  try {
+    const res = await fetch('/api/servers');
+    const raw = await res.json();
+    if (raw.encrypted && raw.salt && raw.iv && raw.data) {
+      const plaintext = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: base64ToBuf(raw.iv) },
+        cryptoKey,
+        base64ToBuf(raw.data),
+      );
+      serversData = JSON.parse(new TextDecoder().decode(plaintext));
+    } else {
+      serversData = raw.servers || [];
+      if (serversData.length > 0 || raw.encrypted === false) await saveServers();
+    }
+  } catch {
+    serversData = [];
+  }
+}
+
+async function saveServers() {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    cryptoKey,
+    new TextEncoder().encode(JSON.stringify(serversData)),
+  );
+  const payload = {
+    encrypted: true,
+    salt: bufToBase64(cryptoSalt),
+    iv: bufToBase64(iv),
+    data: bufToBase64(new Uint8Array(ciphertext)),
+  };
+  await fetch('/api/servers', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+// ---- Sweep ----
+
+async function sweepAllPending() {
+  if (!appData) return;
+  if (!await showConfirm(t.confirmSweep)) return;
+  appData.clients.forEach((client) => {
+    client.status = 'pending';
+    client.locations.forEach((loc) => {
+      loc.users.forEach((user) => { user.status = 'pending'; });
+    });
+  });
+  saveData();
+  render();
 }
 
 // ---- Render ----
@@ -611,6 +835,7 @@ async function saveData() {
 function render() {
   renderClientList();
   renderMainPanel();
+  renderServerList();
   updateVersionBadge();
 }
 
@@ -644,14 +869,35 @@ function renderClientList() {
   else if (clientSort === 'desc') clients.sort((a, b) => b.name.localeCompare(a.name, t.locale));
 
   list.innerHTML = clients
-    .map((c) => `
-    <div class="client-item ${c.id === selectedClientId ? 'active' : ''}" data-client-id="${c.id}">
-      ${escapeHtml(c.name)}
-    </div>
-  `)
+    .map((c) => {
+      const status = c.status || 'pending';
+      return `
+        <div class="client-item ${c.id === selectedClientId ? 'active' : ''}${status === 'closed' ? ' status-closed' : ''}" data-client-id="${c.id}">
+          <button class="status-icon status-${status}" data-client-id="${c.id}" title="${getStatusLabel(status)}">${STATUS_ICONS[status]}</button>
+          <span class="client-name">${escapeHtml(c.name)}</span>
+        </div>
+      `;
+    })
     .join('');
+
   list.querySelectorAll('.client-item').forEach((item) => {
     item.onclick = () => selectClient(item.dataset.clientId);
+  });
+
+  list.querySelectorAll('.status-icon').forEach((icon) => {
+    icon.onclick = (e) => {
+      e.stopPropagation();
+      const client = appData.clients.find((c) => c.id === icon.dataset.clientId);
+      if (!client) return;
+      showStatusDropdown(icon, client.status || 'pending', (newStatus) => {
+        client.status = newStatus;
+        client.locations.forEach((loc) => {
+          loc.users.forEach((user) => { user.status = newStatus; });
+        });
+        saveData(true);
+        render();
+      });
+    };
   });
 }
 
@@ -661,6 +907,42 @@ function selectClient(id) {
   selectedLocationId = client?.locations[0]?.id || null;
   closeSidebar();
   render();
+}
+
+function renderServerList() {
+  const list = document.getElementById('server-list');
+  if (!list) return;
+
+  if (!serversData.length) {
+    list.innerHTML = `<p class="list-empty" style="padding:8px 14px">${t.noServersYet}</p>`;
+    return;
+  }
+
+  list.innerHTML = serversData
+    .map((s) => `
+      <div class="server-item" data-server-id="${s.id}">
+        <div class="server-info">
+          <span class="server-label-text">${escapeHtml(s.label)}</span>
+          <span class="server-address-text">${escapeHtml(s.address)}</span>
+        </div>
+        <div class="server-actions">
+          <button class="btn-copy copy-server-btn" data-address="${escapeHtml(s.address)}" title="${t.tooltipCopy}">⧉</button>
+          <button class="btn-sm admin-only edit-server-btn" data-server-id="${s.id}">${t.btnEdit}</button>
+          <button class="btn-danger-sm admin-only delete-server-btn" data-server-id="${s.id}" title="${t.tooltipDelete}">✕</button>
+        </div>
+      </div>
+    `)
+    .join('');
+
+  list.querySelectorAll('.copy-server-btn').forEach((btn) => {
+    btn.onclick = () => copyToClipboard(btn.dataset.address, btn);
+  });
+  list.querySelectorAll('.edit-server-btn').forEach((btn) => {
+    btn.onclick = () => editServer(btn.dataset.serverId);
+  });
+  list.querySelectorAll('.delete-server-btn').forEach((btn) => {
+    btn.onclick = () => deleteServer(btn.dataset.serverId);
+  });
 }
 
 function renderMainPanel() {
@@ -739,16 +1021,16 @@ function renderCertRowHTML(cert) {
       <div class="cert-row${lastCopied === `cert-${cert.id}` ? ' copy-highlight' : ''}" data-copy-key="cert-${cert.id}">
         <span class="field-label">${escapeHtml(cert.label)}</span>
         <span class="field-masked">${cert.password ? (passwordsVisible ? escapeHtml(cert.password) : '••••••••') : `<em>${t.certNone}</em>`}</span>
-        <button class="btn-copy copy-cert-btn" data-cert-id="${cert.id}" ${!cert.password ? 'disabled' : ''}>⧉</button>
+        <button class="btn-copy copy-cert-btn" data-cert-id="${cert.id}" title="${t.tooltipCopy}" ${!cert.password ? 'disabled' : ''}>⧉</button>
         <button class="btn-sm admin-only edit-cert-btn" data-cert-id="${cert.id}">${t.btnEdit}</button>
-        <button class="btn-danger-sm admin-only delete-cert-btn" data-cert-id="${cert.id}">✕</button>
-        <button class="btn-sm toggle-cert-hist-btn" data-cert-id="${cert.id}">${t.btnOldPasswords(histCount)}</button>
+        <button class="btn-danger-sm admin-only delete-cert-btn" data-cert-id="${cert.id}" title="${t.tooltipDelete}">✕</button>
       </div>
+      ${histCount > 0 ? `<div class="cert-hist-row"><button class="btn-sm toggle-cert-hist-btn" data-cert-id="${cert.id}">${t.btnOldPasswords(histCount)}</button></div>` : ''}
       <div class="cert-history hidden" id="cert-history-${cert.id}">
         <div class="history-row">
           <span class="history-row-label">${t.labelCurrent}</span>
           <span class="history-value">${cert.password ? (passwordsVisible ? escapeHtml(cert.password) : '••••••••') : `<em style="color:var(--text-muted)">${t.certNone}</em>`}</span>
-          ${cert.password ? `<button class="btn-copy copy-cert-current-btn" data-cert-id="${cert.id}">⧉</button>` : ''}
+          ${cert.password ? `<button class="btn-copy copy-cert-current-btn" data-cert-id="${cert.id}" title="${t.tooltipCopy}">⧉</button>` : ''}
         </div>
         ${histCount ? `
           <div class="history-prev-list">
@@ -756,7 +1038,7 @@ function renderCertRowHTML(cert) {
               <div class="history-prev-item">
                 <span class="history-row-label" style="font-size:11px;color:var(--text-muted)">${t.labelPreviously}</span>
                 <span class="history-value">${passwordsVisible ? escapeHtml(h.password) : '••••••••'}</span>
-                <button class="btn-copy copy-cert-hist-btn" data-cert-id="${cert.id}" data-password="${escapeHtml(h.password)}">⧉</button>
+                <button class="btn-copy copy-cert-hist-btn" data-cert-id="${cert.id}" data-password="${escapeHtml(h.password)}" title="${t.tooltipCopy}">⧉</button>
                 <span class="history-date">${new Date(h.changedAt).toLocaleDateString(t.locale)}</span>
               </div>
             `).join('')}
@@ -771,19 +1053,21 @@ function renderLocationHTML(client, location) {
   return `
     <div class="location-content">
       <div class="location-actions-bar">
-        <span class="location-label"><strong>${escapeHtml(location.name)}</strong></span>
         <button class="btn-sm admin-only" id="rename-location-btn">${t.btnEdit}</button>
         ${
           client.locations.length > 1
-            ? `<button class="btn-danger-sm admin-only" id="delete-location-btn">✕</button>`
+            ? `<button class="btn-danger-sm admin-only" id="delete-location-btn" title="${t.tooltipDelete}">✕</button>`
             : ''
         }
       </div>
 
       <div class="cert-section">
+        <div class="section-header">
+          <h3>${t.sectionCerts}</h3>
+          <button class="btn-sm admin-only" id="add-cert-btn">${t.addCertBtn}</button>
+        </div>
         ${location.certs.length === 0 ? `<p class="list-empty">${t.noCertsYet}</p>` : ''}
         ${location.certs.map((cert) => renderCertRowHTML(cert)).join('')}
-        <button class="btn-sm admin-only" id="add-cert-btn" style="margin-top:8px">${t.addCertBtn}</button>
       </div>
 
       <div class="users-section">
@@ -811,24 +1095,29 @@ function renderLocationHTML(client, location) {
 
 function renderUserRowHTML(user) {
   const histCount = user.passwordHistory.length;
+  const status = user.status || 'pending';
   return `
-    <div class="user-row" data-user-id="${user.id}">
+    <div class="user-row${status === 'closed' ? ' status-closed' : ''}" data-user-id="${user.id}">
       <div class="user-card">
+        <div class="user-status-row">
+          <button class="status-icon status-${status} open-status-dropdown" title="${getStatusLabel(status)}">${STATUS_ICONS[status]}</button>
+          <span class="user-status-text status-text-${status}">${t.statusLabel} ${getStatusLabel(status)}</span>
+        </div>
         <div class="user-creds">
           <div class="user-cred-item${lastCopied === `user-${user.id}-username` ? ' copy-highlight' : ''}" data-copy-key="user-${user.id}-username">
             <span class="cred-label">${t.credUser}</span>
             <span class="cred-value">${escapeHtml(user.username)}</span>
-            <button class="btn-copy copy-username-btn" title="${t.labelUsername}">⧉</button>
+            <button class="btn-copy copy-username-btn" title="${t.tooltipCopy} ${t.labelUsername}">⧉</button>
           </div>
           <div class="user-cred-item${lastCopied === `user-${user.id}-password` ? ' copy-highlight' : ''}" data-copy-key="user-${user.id}-password">
             <span class="cred-label">${t.credPass}</span>
             <span class="cred-value">${passwordsVisible ? escapeHtml(user.currentPassword) : '••••••••'}</span>
-            <button class="btn-copy copy-password-btn" title="${t.labelPassword}">⧉</button>
+            <button class="btn-copy copy-password-btn" title="${t.tooltipCopy} ${t.labelPassword}">⧉</button>
           </div>
         </div>
         <div class="user-corner-actions">
           <button class="btn-sm edit-user-btn admin-only">${t.btnEdit}</button>
-          <button class="btn-danger-sm delete-user-btn admin-only">✕</button>
+          <button class="btn-danger-sm delete-user-btn admin-only" title="${t.tooltipDelete}">✕</button>
         </div>
         ${
           histCount
@@ -843,7 +1132,7 @@ function renderUserRowHTML(user) {
         <div class="history-row">
           <span class="history-row-label">${t.labelCurrent}</span>
           <span class="history-value">${passwordsVisible ? escapeHtml(user.currentPassword) : '••••••••'}</span>
-          <button class="btn-copy copy-history-btn" data-password="${escapeHtml(user.currentPassword)}">⧉</button>
+          <button class="btn-copy copy-history-btn" data-password="${escapeHtml(user.currentPassword)}" title="${t.tooltipCopy}">⧉</button>
         </div>
         ${
           histCount
@@ -855,7 +1144,7 @@ function renderUserRowHTML(user) {
               <div class="history-prev-item">
                 <span class="history-row-label" style="font-size:11px;color:var(--text-muted)">${t.labelPreviously}</span>
                 <span class="history-value">${passwordsVisible ? escapeHtml(h.password) : '••••••••'}</span>
-                <button class="btn-copy copy-history-btn" data-password="${escapeHtml(h.password)}">⧉</button>
+                <button class="btn-copy copy-history-btn" data-password="${escapeHtml(h.password)}" title="${t.tooltipCopy}">⧉</button>
                 <span class="history-date">${new Date(h.changedAt).toLocaleDateString(t.locale)}</span>
               </div>
             `,
@@ -923,6 +1212,15 @@ function bindLocationActions(client, location) {
     } else if (e.target.classList.contains('toggle-history-btn')) {
       document.getElementById(`history-${user.id}`).classList.toggle('hidden');
       e.target.classList.toggle('open');
+    } else if (e.target.classList.contains('open-status-dropdown')) {
+      showStatusDropdown(e.target, user.status || 'pending', (newStatus) => {
+        user.status = newStatus;
+        const allUsers = client.locations.flatMap((loc) => loc.users);
+        const statuses = [...new Set(allUsers.map((u) => u.status || 'pending'))];
+        client.status = statuses.length === 1 ? statuses[0] : 'pending';
+        saveData(true);
+        render();
+      });
     } else if (e.target.classList.contains('edit-user-btn')) {
       editUser(client.id, location.id, user.id);
     } else if (e.target.classList.contains('delete-user-btn')) {
@@ -954,6 +1252,7 @@ function addClient() {
       const client = {
         id: generateId(),
         name,
+        status: 'pending',
         locations: [
           {
             id: generateId(),
@@ -995,9 +1294,9 @@ function renameClient(clientId) {
   );
 }
 
-function deleteClient(clientId) {
+async function deleteClient(clientId) {
   const client = appData.clients.find((c) => c.id === clientId);
-  if (!confirm(t.confirmDeleteClient(client.name))) return;
+  if (!await showConfirm(t.confirmDeleteClient(client.name), true)) return;
   appData.clients = appData.clients.filter((c) => c.id !== clientId);
   selectedClientId = null;
   selectedLocationId = null;
@@ -1061,11 +1360,11 @@ function renameLocation(clientId, locationId) {
   );
 }
 
-function deleteLocation(clientId, locationId) {
+async function deleteLocation(clientId, locationId) {
   const client = appData.clients.find((c) => c.id === clientId);
   if (client.locations.length <= 1) return;
   const loc = client.locations.find((l) => l.id === locationId);
-  if (!confirm(t.confirmDeleteLocation(loc.name))) return;
+  if (!await showConfirm(t.confirmDeleteLocation(loc.name), true)) return;
   client.locations = client.locations.filter((l) => l.id !== locationId);
   selectedLocationId = client.locations[0]?.id || null;
   saveData();
@@ -1155,11 +1454,11 @@ function editCert(clientId, locationId, certId) {
   );
 }
 
-function deleteCert(clientId, locationId, certId) {
+async function deleteCert(clientId, locationId, certId) {
   const client = appData.clients.find((c) => c.id === clientId);
   const loc = client.locations.find((l) => l.id === locationId);
   const cert = loc.certs.find((c) => c.id === certId);
-  if (!confirm(t.confirmDeleteCert(cert.label))) return;
+  if (!await showConfirm(t.confirmDeleteCert(cert.label), true)) return;
   loc.certs = loc.certs.filter((c) => c.id !== certId);
   saveData();
   renderMainPanel();
@@ -1198,7 +1497,11 @@ function addUser(clientId, locationId) {
         username,
         currentPassword: password,
         passwordHistory: [],
+        status: 'pending',
       });
+      const allUsers = client.locations.flatMap((l) => l.users);
+      const statuses = [...new Set(allUsers.map((u) => u.status || 'pending'))];
+      client.status = statuses.length === 1 ? statuses[0] : 'pending';
       saveData();
       renderMainPanel();
     },
@@ -1268,20 +1571,99 @@ function editUser(clientId, locationId, userId) {
   );
 }
 
-function deleteUser(clientId, locationId, userId) {
+async function deleteUser(clientId, locationId, userId) {
   const client = appData.clients.find((c) => c.id === clientId);
   const loc = client.locations.find((l) => l.id === locationId);
   const user = loc.users.find((u) => u.id === userId);
-  if (!confirm(t.confirmDeleteUser(user.username))) return;
+  if (!await showConfirm(t.confirmDeleteUser(user.username), true)) return;
   loc.users = loc.users.filter((u) => u.id !== userId);
   saveData();
   renderMainPanel();
 }
 
+// ---- Server CRUD ----
+
+function addServer() {
+  showModal(
+    t.modalAddServer,
+    `
+    <div class="form-group">
+      <label>${t.labelServerLabel}</label>
+      <input type="text" id="f-server-label" placeholder="${t.phServerLabel}" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>${t.labelServerAddress}</label>
+      <input type="text" id="f-server-address" placeholder="${t.phServerAddress}" autocomplete="off">
+    </div>
+    `,
+    async () => {
+      const label = document.getElementById('f-server-label').value.trim();
+      const address = document.getElementById('f-server-address').value.trim();
+      if (!label) { showToast(t.toastNameRequired, 'error'); return false; }
+      if (!address) { showToast(t.toastAddressRequired, 'error'); return false; }
+      serversData.push({ id: generateId(), label, address });
+      await saveServers();
+      renderServerList();
+    },
+  );
+}
+
+function editServer(serverId) {
+  const server = serversData.find((s) => s.id === serverId);
+  if (!server) return;
+  showModal(
+    t.modalEditServer,
+    `
+    <div class="form-group">
+      <label>${t.labelServerLabel}</label>
+      <input type="text" id="f-server-label" value="${escapeHtml(server.label)}" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>${t.labelServerAddress}</label>
+      <input type="text" id="f-server-address" value="${escapeHtml(server.address)}" autocomplete="off">
+    </div>
+    `,
+    async () => {
+      const label = document.getElementById('f-server-label').value.trim();
+      const address = document.getElementById('f-server-address').value.trim();
+      if (!label) { showToast(t.toastNameRequired, 'error'); return false; }
+      if (!address) { showToast(t.toastAddressRequired, 'error'); return false; }
+      server.label = label;
+      server.address = address;
+      await saveServers();
+      renderServerList();
+    },
+  );
+}
+
+async function deleteServer(serverId) {
+  const server = serversData.find((s) => s.id === serverId);
+  if (!server) return;
+  if (!await showConfirm(t.confirmDeleteServer(server.label), true)) return;
+  serversData = serversData.filter((s) => s.id !== serverId);
+  saveServers();
+  renderServerList();
+}
+
 // ---- Export / Import ----
 
 function exportJson() {
-  window.location.href = '/api/export';
+  fetch('/api/export')
+    .then(async (res) => {
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const filename = disposition.match(/filename="(.+?)"/)?.[1] || 'credentials.json';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    })
+    .catch(() => showToast(t.toastImportFail, 'error'));
 }
 
 function exportTxt(clientId = null) {
@@ -1481,7 +1863,9 @@ async function handleImportFile(file) {
           ? t.confirmImportOlder(incomingVer, cv)
           : t.confirmImportSame(cv);
 
-    if (!confirm(msg)) return;
+    if (!await showConfirm(msg)) return;
+
+    migrateClients(incomingClients);
 
     // Re-encrypt with the current user's key so the stored file stays in their encryption context
     const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -1527,10 +1911,13 @@ async function init() {
   initLanguage();
   applyStaticText();
   await unlockAndLoadData();
+  await loadServers();
   render();
 
   document.getElementById('admin-btn').onclick = () =>
     isAdminMode ? exitAdminMode() : enterAdminMode();
+
+  document.getElementById('sweep-btn').onclick = sweepAllPending;
 
   document.getElementById('client-sort-btn').onclick = () => {
     clientSort = clientSort === null ? 'asc' : clientSort === 'asc' ? 'desc' : null;
@@ -1544,6 +1931,7 @@ async function init() {
   };
 
   document.getElementById('add-client-btn').onclick = addClient;
+  document.getElementById('add-server-btn').onclick = addServer;
   document.getElementById('export-btn').onclick = exportJson;
   document.getElementById('export-txt-btn').onclick = () => exportTxt();
 
@@ -1568,6 +1956,14 @@ async function init() {
   };
 
   document.getElementById('sidebar-overlay').onclick = closeSidebar;
+
+  document.getElementById('right-panel-btn').onclick = () => {
+    document.getElementById('right-panel').classList.contains('open')
+      ? closeRightPanel()
+      : openRightPanel();
+  };
+  document.getElementById('right-panel-close').onclick = closeRightPanel;
+  document.getElementById('right-panel-overlay').onclick = closeRightPanel;
 
   document.getElementById('modal-overlay').onclick = (e) => {
     if (e.target.id === 'modal-overlay') closeModal();
