@@ -862,6 +862,7 @@ async function loadFiles() {
     const raw = await res.json();
     const diskFiles = raw.diskFiles || [];
     const blob = raw.assignments || {};
+    filesData = { diskFiles };
     if (blob.encrypted) {
       const plaintext = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv: base64ToBuf(blob.iv) },
@@ -873,7 +874,6 @@ async function loadFiles() {
       filesAssignments = blob.assignments || {};
       await saveFiles();
     }
-    filesData = { diskFiles };
   } catch {
     filesData = { diskFiles: [] };
     filesAssignments = {};
@@ -2288,12 +2288,13 @@ async function init() {
 
   document.getElementById('add-client-btn').onclick = addClient;
   document.getElementById('add-server-btn').onclick = addServer;
-  document.getElementById('file-manager-btn').onclick = () => {
+  document.getElementById('file-manager-btn').onclick = async () => {
     if (!isAdminMode) return;
     showingFileMgr = true;
     selectedClientId = null;
     selectedLocationId = null;
     closeSidebar();
+    await loadFiles();
     renderMainPanel();
     renderFilesBadge();
   };
