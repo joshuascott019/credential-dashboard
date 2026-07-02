@@ -172,7 +172,53 @@ Click **Old Passwords** on the cert row to expand the history panel.
 
 ---
 
-## 13. Password history
+## 13. Files
+
+> Viewing and copying are available in read-only mode. Assignments are managed through the File Manager (see section 14, requires admin mode).
+
+Each location can have one or more files associated with it — typically certificate files that need to be transferred into a remote session. Assigned files appear in the **Files** section of the location panel, between Certificates and Users.
+
+**Copying a file to the clipboard:**
+Click **Copy File** next to the file name. The app asks the server to copy the file to your Windows clipboard as a file object — equivalent to right-clicking a file in File Explorer and choosing Copy. You can then paste it (Ctrl+V) directly in File Explorer, including inside an RDP session where clipboard file redirection is enabled.
+
+The button briefly shows **✓** to confirm. If the file has been removed from the `files/` folder, a **File missing** badge appears instead of the copy button. The assignment is preserved even if the file is temporarily missing.
+
+If a file is assigned to a specific user within the location (rather than to the whole location), a small user tag appears next to the file name.
+
+---
+
+## 14. File Manager
+
+> Requires admin mode.
+
+The File Manager is opened from the **File Manager** button in the **Files** section of the sidebar. It is disabled in read-only mode. Clicking it replaces the main panel with the file management view.
+
+The File Manager lists all files currently found in the `files/` folder inside the app directory, divided into two groups:
+
+- **Unassigned** — files that are not yet assigned to any location.
+- **Assigned** — files assigned to at least one location.
+
+An **orange badge** next to "Files" in the sidebar shows how many files are unassigned.
+
+**Placing files:**
+Files must be placed manually in the `files/` folder inside the app directory. The app does not upload files — just copy or move your certificate files there and they will appear in the File Manager the next time you open it.
+
+**Assigning a file:**
+Click **Assign** (or **Re-assign** for a file that already has assignments) on any row. A modal opens with:
+
+- **Display name** — an optional label shown in place of the raw filename. Leave blank to show the filename as-is.
+- **Assignment hierarchy** — a tree of all clients, locations, and users. Check boxes to set where this file appears:
+  - Check a **location** to assign the file to everyone at that location.
+  - Check individual **users** within a location to assign the file to specific users only.
+  - Check a **client** to assign to all of that client's locations at once.
+
+Checking a parent automatically checks all its children. Unchecking a parent unchecks all children. Children can be checked independently without affecting the parent checkbox.
+
+Click **Save** to confirm. Assignments are encrypted with your master passphrase and stored in `data/files.json`.
+
+---
+
+## 15. Password history
 
 Password history is visible for both users and cert passwords. It shows each old password and the date it was changed.
 
@@ -185,7 +231,7 @@ The history button is hidden if there is no history yet.
 
 ---
 
-## 14. Exporting the data file
+## 16. Exporting the data file
 
 Click **Export** in the header to download the current `credentials.json` file. The file is encrypted — it cannot be read without the master passphrase.
 
@@ -193,7 +239,7 @@ Use this to share your data with a coworker, create a backup, or transfer data t
 
 ---
 
-## 15. Printing and copying credentials
+## 17. Printing and copying credentials
 
 **Print all:** Click **Print** in the header to generate and download a formatted `.txt` file with all credentials in plain text.
 
@@ -207,7 +253,7 @@ The output uses the currently active language. Passwords that contain spaces are
 
 ---
 
-## 16. Importing a file
+## 18. Importing a file
 
 > Requires admin mode.
 
@@ -224,7 +270,7 @@ If the version numbers differ, the app will tell you which file is newer before 
 
 ---
 
-## 17. Sharing files with coworkers
+## 19. Sharing files with coworkers
 
 The recommended workflow for a team sharing this tool:
 
@@ -237,13 +283,13 @@ The recommended workflow for a team sharing this tool:
 
 ---
 
-## 18. Changing the language
+## 20. Changing the language
 
 Click the **Language** dropdown in the header and select **English** or **Português**. Your preference is saved in the browser and will be remembered next time you open the app.
 
 ---
 
-## 19. Security notes
+## 21. Security notes
 
 - **The master passphrase is never stored anywhere.** It lives only in memory while the app is open. Closing the tab clears it.
 - **The encrypted file is safe to share.** Without the passphrase, the data blob is unreadable.

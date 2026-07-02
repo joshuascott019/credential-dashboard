@@ -28,6 +28,7 @@ O servidor encerra automaticamente após **30 minutos de inatividade** — ou se
 - **Locais** — cada cliente pode ter um ou mais locais (ex: Matriz, Filial).
 - **Usuários** — cada local possui seus próprios usuários com nome de usuário e senha.
 - **Certificados** — cada local suporta múltiplos certificados nomeados (ex: Principal, Admin, VPN), cada um com sua própria senha e histórico de alterações.
+- **Gerenciamento de arquivos** — coloque arquivos de certificado na pasta `files/` dentro do diretório do app. Os arquivos são atribuídos a clientes, locais ou usuários individuais pelo Gerenciador de Arquivos (somente admin). O botão **Copiar Arquivo** na visualização do local copia o arquivo para a área de transferência do Windows como objeto de arquivo — cole diretamente no Explorador de Arquivos ou em uma sessão RDP com redirecionamento de área de transferência ativado.
 - **Histórico de senhas** — senhas antigas ficam salvas automaticamente ao alterar.
 - **Copiar com um clique** — botão ⧉ ao lado de cada credencial copia para a área de transferência.
 - **Copiar cliente** — botão Copiar ao lado de Imprimir copia todas as credenciais do cliente para a área de transferência em texto simples.
@@ -60,6 +61,8 @@ Cliente
 └── Local (ex: Matriz, Filial)
     ├── Certificados
     │   └── [Rótulo] Senha + histórico
+    ├── Arquivos
+    │   └── [Nome do arquivo / nome de exibição]
     └── Usuários
         ├── Nome de usuário
         ├── Senha atual
@@ -100,6 +103,7 @@ The server shuts down automatically after **30 minutes of inactivity** — just 
 - **Locations** — each client can have one or more locations (e.g. Main, Branch).
 - **Users** — each location has its own users with username and password.
 - **Certificates** — each location supports multiple named certificates (e.g. Main, Admin, VPN), each with its own password and change history.
+- **File management** — place certificate files in the `files/` folder inside the app directory. Files are assigned to clients, locations, or individual users through the File Manager (admin-only). A **Copy File** button in the location view copies the file to the Windows clipboard as a file object — paste it directly in File Explorer or inside an RDP session with clipboard redirection enabled.
 - **Password history** — old passwords are saved automatically when changed.
 - **One-click copy** — ⧉ button next to each credential copies it to the clipboard.
 - **Copy client** — Copy button next to Print copies all of a client's credentials to the clipboard in plain text.
@@ -132,6 +136,8 @@ Client
 └── Location (e.g. Main, Branch)
     ├── Certificates
     │   └── [Label] Password + history
+    ├── Files
+    │   └── [Filename / display name]
     └── Users
         ├── Username
         ├── Current password

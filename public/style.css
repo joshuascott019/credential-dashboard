@@ -1190,3 +1190,237 @@ button {
 .location-actions-bar {
   justify-content: flex-end;
 }
+
+/* ---- Files section (sidebar) ---- */
+#files-section {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.unassigned-badge {
+  background: #eab308;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.unassigned-badge.hidden {
+  display: none;
+}
+
+.files-nav-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+  border-radius: 0;
+  font-family: inherit;
+}
+.files-nav-btn:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text);
+}
+.files-nav-btn.active {
+  color: var(--accent);
+  background: var(--bg-card);
+  font-weight: 500;
+}
+.files-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---- File Manager view ---- */
+.file-manager {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.fm-body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fm-file-list {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.fm-file-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.fm-file-row:last-child {
+  border-bottom: none;
+}
+
+.fm-file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fm-file-name {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fm-file-raw {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fm-file-assignment {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---- Assignment modal hierarchy ---- */
+.assign-hierarchy {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  margin-top: 4px;
+}
+
+.assign-client-block {
+  border-bottom: 1px solid var(--border);
+}
+.assign-client-block:last-child {
+  border-bottom: none;
+}
+
+.assign-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+  font-size: 13px;
+  color: var(--text);
+}
+.assign-row:hover {
+  background: var(--bg-hover);
+}
+
+.assign-client-row {
+  font-weight: 500;
+}
+
+.assign-client-name {
+  font-size: 13px;
+}
+
+.assign-locations {
+  padding-left: 18px;
+}
+
+.assign-location-row {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.assign-users {
+  padding-left: 18px;
+}
+
+.assign-user-row {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.assign-row input[type="checkbox"] {
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+  width: 14px;
+  height: 14px;
+}
+
+/* ---- Location files section ---- */
+.location-files-section {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.file-row + .file-row {
+  border-top: 1px solid var(--border);
+}
+
+.loc-file-name {
+  font-size: 13px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-user-tag {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.file-missing-badge {
+  font-size: 11px;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 4px;
+  padding: 1px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

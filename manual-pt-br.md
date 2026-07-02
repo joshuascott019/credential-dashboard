@@ -174,7 +174,53 @@ Clique em **Senhas Antigas** na linha do certificado para expandir o painel de h
 
 ---
 
-## 13. Histórico de senhas
+## 13. Arquivos
+
+> Visualização e cópia estão disponíveis no modo leitura. As atribuições são gerenciadas pelo Gerenciador de Arquivos (consulte a seção 14, requer modo admin).
+
+Cada local pode ter um ou mais arquivos associados — geralmente arquivos de certificado que precisam ser transferidos para uma sessão remota. Os arquivos atribuídos aparecem na seção **Arquivos** do painel de localização, entre Certificados e Usuários.
+
+**Copiando um arquivo para a área de transferência:**
+Clique em **Copiar Arquivo** ao lado do nome do arquivo. O app pede ao servidor para copiar o arquivo para a área de transferência do Windows como objeto de arquivo — equivalente a clicar com o botão direito em um arquivo no Explorador de Arquivos e escolher Copiar. Você pode então colá-lo (Ctrl+V) diretamente no Explorador de Arquivos, inclusive dentro de uma sessão RDP com redirecionamento de área de transferência de arquivos ativado.
+
+O botão exibe brevemente **✓** para confirmar. Se o arquivo foi removido da pasta `files/`, uma badge **Arquivo ausente** aparece no lugar do botão de cópia. A atribuição é mantida mesmo que o arquivo esteja temporariamente ausente.
+
+Se um arquivo for atribuído especificamente a um usuário dentro do local (em vez de ao local como um todo), uma pequena tag de usuário aparece ao lado do nome do arquivo.
+
+---
+
+## 14. Gerenciador de Arquivos
+
+> Requer modo admin.
+
+O Gerenciador de Arquivos é acessado pelo botão **Gerenciador de Arquivos** na seção **Arquivos** da barra lateral. Ele fica desativado no modo leitura. Ao clicar, o painel principal é substituído pela visualização de gerenciamento de arquivos.
+
+O Gerenciador de Arquivos lista todos os arquivos encontrados na pasta `files/` dentro do diretório do app, divididos em dois grupos:
+
+- **Não atribuídos** — arquivos que ainda não foram atribuídos a nenhum local.
+- **Atribuídos** — arquivos atribuídos a pelo menos um local.
+
+Uma **badge laranja** ao lado de "Arquivos" na barra lateral mostra quantos arquivos estão sem atribuição.
+
+**Adicionando arquivos:**
+Os arquivos devem ser colocados manualmente na pasta `files/` dentro do diretório do app. O app não faz upload de arquivos — basta copiar ou mover seus arquivos de certificado para lá e eles aparecerão no Gerenciador de Arquivos na próxima vez que for aberto.
+
+**Atribuindo um arquivo:**
+Clique em **Atribuir** (ou **Reatribuir** para um arquivo que já tem atribuições) em qualquer linha. Um modal abre com:
+
+- **Nome de exibição** — um rótulo opcional exibido no lugar do nome real do arquivo. Deixe em branco para exibir o nome do arquivo como está.
+- **Hierarquia de atribuição** — uma árvore de todos os clientes, locais e usuários. Marque as caixas para definir onde este arquivo aparece:
+  - Marque um **local** para atribuir o arquivo a todos naquele local.
+  - Marque **usuários** individuais dentro de um local para atribuir o arquivo apenas a usuários específicos.
+  - Marque um **cliente** para atribuir a todos os locais daquele cliente de uma vez.
+
+Marcar um pai marca automaticamente todos os filhos. Desmarcar um pai desmarca todos os filhos. Os filhos podem ser marcados independentemente sem afetar o pai.
+
+Clique em **Salvar** para confirmar. As atribuições são criptografadas com sua senha mestra e armazenadas em `data/files.json`.
+
+---
+
+## 15. Histórico de senhas
 
 O histórico de senhas está disponível para usuários e senhas de certificado. Exibe cada senha antiga e a data em que foi alterada.
 
@@ -187,7 +233,7 @@ O botão de histórico fica oculto se não houver histórico ainda.
 
 ---
 
-## 14. Exportando o arquivo de dados
+## 16. Exportando o arquivo de dados
 
 Clique em **Exportar** no cabeçalho para baixar o arquivo `credentials.json` atual. O arquivo é criptografado — não pode ser lido sem a senha mestra.
 
@@ -195,7 +241,7 @@ Use isso para compartilhar seus dados com um colega, criar um backup ou transfer
 
 ---
 
-## 15. Imprimindo e copiando credenciais
+## 17. Imprimindo e copiando credenciais
 
 **Imprimir tudo:** Clique em **Imprimir** no cabeçalho para gerar e baixar um arquivo `.txt` formatado com todas as credenciais em texto simples.
 
@@ -209,7 +255,7 @@ O resultado usa o idioma atualmente selecionado. Senhas que contêm espaços sã
 
 ---
 
-## 16. Importando um arquivo
+## 18. Importando um arquivo
 
 > Requer modo admin.
 
@@ -226,7 +272,7 @@ Se os números de versão forem diferentes, o app informará qual arquivo é mai
 
 ---
 
-## 17. Compartilhando arquivos com colegas
+## 19. Compartilhando arquivos com colegas
 
 O fluxo recomendado para uma equipe que compartilha esta ferramenta:
 
@@ -239,13 +285,13 @@ O fluxo recomendado para uma equipe que compartilha esta ferramenta:
 
 ---
 
-## 18. Alterando o idioma
+## 20. Alterando o idioma
 
 Clique no menu suspenso **Idioma** no cabeçalho e selecione **Português** ou **English**. Sua preferência é salva no navegador e será lembrada na próxima vez que abrir o app.
 
 ---
 
-## 19. Notas de segurança
+## 21. Notas de segurança
 
 - **A senha mestra nunca é armazenada em nenhum lugar.** Ela existe apenas na memória enquanto o app está aberto. Fechar a aba a apaga.
 - **O arquivo criptografado é seguro para compartilhar.** Sem a senha mestra, o conteúdo do arquivo é ilegível.

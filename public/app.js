@@ -139,6 +139,23 @@ const LANGS = {
     sectionCerts: 'Certificates',
     tooltipCopy: 'Copy',
     tooltipDelete: 'Delete',
+    sidebarFiles: 'Files',
+    fileManagerTitle: 'File Manager',
+    unassignedFiles: 'Unassigned',
+    assignedFiles: 'Assigned',
+    btnAssign: 'Assign',
+    btnReassign: 'Re-assign',
+    assignModalTitle: 'Assign',
+    labelDisplayName: 'Display Name',
+    phDisplayName: 'e.g. Main Cert',
+    noFilesFound: 'No files found in the files/ folder',
+    toastFilesSaved: 'Assignments saved',
+    sectionFiles: 'Files',
+    noFilesAssigned: 'No files assigned',
+    btnCopyFile: 'Copy File',
+    fileMissing: 'File missing',
+    toastClipboardOk: 'File copied to clipboard',
+    toastClipboardFail: 'Clipboard write failed',
   },
   'pt-br': {
     locale: 'pt-BR',
@@ -279,6 +296,23 @@ const LANGS = {
     sectionCerts: 'Certificados',
     tooltipCopy: 'Copiar',
     tooltipDelete: 'Excluir',
+    sidebarFiles: 'Arquivos',
+    fileManagerTitle: 'Gerenciar Arquivos',
+    unassignedFiles: 'Não atribuídos',
+    assignedFiles: 'Atribuídos',
+    btnAssign: 'Atribuir',
+    btnReassign: 'Reatribuir',
+    assignModalTitle: 'Atribuir',
+    labelDisplayName: 'Nome de exibição',
+    phDisplayName: 'Ex: Cert Principal',
+    noFilesFound: 'Nenhum arquivo na pasta files/',
+    toastFilesSaved: 'Atribuições salvas',
+    sectionFiles: 'Arquivos',
+    noFilesAssigned: 'Nenhum arquivo atribuído',
+    btnCopyFile: 'Copiar Arquivo',
+    fileMissing: 'Arquivo não encontrado',
+    toastClipboardOk: 'Arquivo copiado para a área de transferência',
+    toastClipboardFail: 'Falha ao copiar para área de transferência',
   },
 };
 
@@ -302,6 +336,9 @@ let cryptoKey = null;
 let cryptoSalt = null;
 let masterPassphrase = null;
 let activeDropdown = null;
+let filesData = null;
+let filesAssignments = {};
+let showingFileMgr = false;
 
 // ---- Language ----
 
@@ -337,6 +374,7 @@ function applyStaticText() {
   langSelect.value = '';
   document.getElementById('clients-label').textContent = t.sidebarClients;
   document.getElementById('servers-label').textContent = t.sidebarServers;
+  document.getElementById('files-label').textContent = t.sidebarFiles;
   document.getElementById('pw-toggle-btn').textContent = passwordsVisible ? t.btnPwVisible : t.btnPwHidden;
 }
 
@@ -719,6 +757,7 @@ async function unlockAndLoadData() {
 function applyAdminMode() {
   document.getElementById('app').classList.toggle('admin-mode', isAdminMode);
   document.getElementById('admin-btn').classList.toggle('active', isAdminMode);
+  renderFilesBadge();
 }
 
 function enterAdminMode() {
@@ -815,6 +854,305 @@ async function saveServers() {
   });
 }
 
+// ---- Files ----
+
+async function loadFiles() {
+  try {
+    const res = await fetch('/api/files');
+    const raw = await res.json();
+    const diskFiles = raw.diskFiles || [];
+    const blob = raw.assignments || {};
+    if (blob.encrypted) {
+      const plaintext = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: base64ToBuf(blob.iv) },
+        cryptoKey,
+        base64ToBuf(blob.data),
+      );
+      filesAssignments = JSON.parse(new TextDecoder().decode(plaintext));
+    } else {
+      filesAssignments = blob.assignments || {};
+      await saveFiles();
+    }
+    filesData = { diskFiles };
+  } catch {
+    filesData = { diskFiles: [] };
+    filesAssignments = {};
+  }
+}
+
+async function saveFiles() {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    cryptoKey,
+    new TextEncoder().encode(JSON.stringify(filesAssignments)),
+  );
+  const payload = {
+    encrypted: true,
+    salt: bufToBase64(cryptoSalt),
+    iv: bufToBase64(iv),
+    data: bufToBase64(new Uint8Array(ciphertext)),
+  };
+  await fetch('/api/files', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
+function renderFilesBadge() {
+  if (!filesData) return;
+  const unassigned = filesData.diskFiles.filter(
+    (f) => !filesAssignments[f]?.assignments?.length,
+  ).length;
+  const badge = document.getElementById('files-unassigned-badge');
+  if (badge) {
+    badge.textContent = unassigned;
+    badge.classList.toggle('hidden', unassigned === 0);
+  }
+  const btn = document.getElementById('file-manager-btn');
+  if (btn) {
+    btn.disabled = !isAdminMode;
+    btn.classList.toggle('active', showingFileMgr);
+  }
+}
+
+function buildAssignmentSummary(assignments) {
+  if (!assignments?.length) return '';
+  const parts = assignments.map(({ clientId, locationId, userId }) => {
+    const client = appData.clients.find((c) => c.id === clientId);
+    if (!client) return null;
+    const loc = client.locations.find((l) => l.id === locationId);
+    if (!loc) return null;
+    if (userId) {
+      const user = loc.users.find((u) => u.id === userId);
+      return user ? `${client.name} / ${loc.name} / ${user.username}` : null;
+    }
+    return `${client.name} / ${loc.name}`;
+  }).filter(Boolean);
+  return parts.join('; ');
+}
+
+function renderFileRowHTML(filename, isAssigned) {
+  const entry = filesAssignments[filename];
+  const displayName = entry?.displayName || filename;
+  const summary = isAssigned ? escapeHtml(buildAssignmentSummary(entry.assignments)) : '';
+  return `
+    <div class="fm-file-row">
+      <div class="fm-file-info">
+        <span class="fm-file-name">${escapeHtml(displayName)}</span>
+        ${displayName !== filename ? `<span class="fm-file-raw">${escapeHtml(filename)}</span>` : ''}
+        ${summary ? `<span class="fm-file-assignment">${summary}</span>` : ''}
+      </div>
+      <button class="btn-sm assign-file-btn" data-filename="${escapeHtml(filename)}">
+        ${isAssigned ? t.btnReassign : t.btnAssign}
+      </button>
+    </div>`;
+}
+
+function renderFileManager() {
+  const panel = document.getElementById('main-panel');
+  if (!filesData) {
+    panel.innerHTML = `<p class="placeholder">${t.selectClientHint}</p>`;
+    return;
+  }
+  const { diskFiles } = filesData;
+  const unassigned = diskFiles.filter((f) => !filesAssignments[f]?.assignments?.length);
+  const assigned = diskFiles.filter((f) => filesAssignments[f]?.assignments?.length > 0);
+
+  panel.innerHTML = `
+    <div class="file-manager">
+      <div class="client-header">
+        <h2>${t.fileManagerTitle}</h2>
+      </div>
+      <div class="fm-body">
+        ${diskFiles.length === 0 ? `<p class="placeholder" style="margin-top:32px">${t.noFilesFound}</p>` : ''}
+        ${unassigned.length > 0 ? `
+          <div class="fm-section">
+            <div class="section-header"><h3>${t.unassignedFiles} (${unassigned.length})</h3></div>
+            <div class="fm-file-list">${unassigned.map((f) => renderFileRowHTML(f, false)).join('')}</div>
+          </div>` : ''}
+        ${assigned.length > 0 ? `
+          <div class="fm-section">
+            <div class="section-header"><h3>${t.assignedFiles} (${assigned.length})</h3></div>
+            <div class="fm-file-list">${assigned.map((f) => renderFileRowHTML(f, true)).join('')}</div>
+          </div>` : ''}
+      </div>
+    </div>`;
+
+  panel.querySelectorAll('.assign-file-btn').forEach((btn) => {
+    btn.onclick = () => showAssignModal(btn.dataset.filename);
+  });
+}
+
+function showAssignModal(filename) {
+  const existing = filesAssignments[filename] || { displayName: '', assignments: [] };
+  const currentAssignments = existing.assignments || [];
+
+  const hierarchyHTML = appData.clients.map((client) => {
+    const locsHTML = client.locations.map((loc) => {
+      const locChecked = currentAssignments.some(
+        (a) => a.clientId === client.id && a.locationId === loc.id && a.userId === null,
+      );
+      const usersHTML = loc.users.map((user) => {
+        const userChecked = currentAssignments.some(
+          (a) => a.clientId === client.id && a.locationId === loc.id && a.userId === user.id,
+        );
+        return `
+          <label class="assign-row assign-user-row">
+            <input type="checkbox" class="assign-user-cb"
+              data-client-id="${client.id}"
+              data-location-id="${loc.id}"
+              data-user-id="${user.id}"
+              ${userChecked ? 'checked' : ''}>
+            <span>${escapeHtml(user.username)}</span>
+          </label>`;
+      }).join('');
+      return `
+        <label class="assign-row assign-location-row">
+          <input type="checkbox" class="assign-location-cb"
+            data-client-id="${client.id}"
+            data-location-id="${loc.id}"
+            ${locChecked ? 'checked' : ''}>
+          <span>${escapeHtml(loc.name)}</span>
+        </label>
+        ${loc.users.length ? `<div class="assign-users">${usersHTML}</div>` : ''}`;
+    }).join('');
+
+    const clientChecked = client.locations.length > 0 && client.locations.every((loc) =>
+      currentAssignments.some((a) => a.clientId === client.id && a.locationId === loc.id && a.userId === null),
+    );
+    return `
+      <div class="assign-client-block">
+        <label class="assign-row assign-client-row">
+          <input type="checkbox" class="assign-client-cb" data-client-id="${client.id}" ${clientChecked ? 'checked' : ''}>
+          <span class="assign-client-name">${escapeHtml(client.name)}</span>
+        </label>
+        <div class="assign-locations">${locsHTML}</div>
+      </div>`;
+  }).join('');
+
+  const shortName = filename.length > 28 ? filename.slice(0, 25) + '…' : filename;
+
+  showModal(
+    `${t.assignModalTitle}: ${shortName}`,
+    `
+    <div class="form-group">
+      <label>${t.labelDisplayName}</label>
+      <input type="text" id="f-display-name" value="${escapeHtml(existing.displayName || '')}"
+        placeholder="${escapeHtml(filename)}" autocomplete="off">
+    </div>
+    <div class="assign-hierarchy">
+      ${hierarchyHTML || `<p class="list-empty" style="padding:10px 12px">${t.noClientsYet}</p>`}
+    </div>`,
+    () => {
+      const displayName = document.getElementById('f-display-name').value.trim();
+      const newAssignments = [];
+
+      document.querySelectorAll('.assign-location-cb:checked').forEach((cb) => {
+        newAssignments.push({ clientId: cb.dataset.clientId, locationId: cb.dataset.locationId, userId: null });
+      });
+
+      document.querySelectorAll('.assign-user-cb:checked').forEach((cb) => {
+        const locCb = document.querySelector(
+          `.assign-location-cb[data-client-id="${cb.dataset.clientId}"][data-location-id="${cb.dataset.locationId}"]`,
+        );
+        if (!locCb?.checked) {
+          newAssignments.push({ clientId: cb.dataset.clientId, locationId: cb.dataset.locationId, userId: cb.dataset.userId });
+        }
+      });
+
+      filesAssignments[filename] = { displayName: displayName || filename, assignments: newAssignments };
+      saveFiles();
+      showToast(t.toastFilesSaved);
+      renderFilesBadge();
+      renderFileManager();
+    },
+    t.btnSave,
+  );
+
+  setTimeout(() => {
+    document.querySelectorAll('.assign-client-cb').forEach((clientCb) => {
+      clientCb.onchange = () => {
+        const cid = clientCb.dataset.clientId;
+        document.querySelectorAll(`.assign-location-cb[data-client-id="${cid}"]`).forEach((cb) => { cb.checked = clientCb.checked; });
+        document.querySelectorAll(`.assign-user-cb[data-client-id="${cid}"]`).forEach((cb) => { cb.checked = clientCb.checked; });
+      };
+    });
+    document.querySelectorAll('.assign-location-cb').forEach((locCb) => {
+      locCb.onchange = () => {
+        const { clientId, locationId } = locCb.dataset;
+        document.querySelectorAll(`.assign-user-cb[data-client-id="${clientId}"][data-location-id="${locationId}"]`).forEach((cb) => { cb.checked = locCb.checked; });
+      };
+    });
+  }, 30);
+}
+
+function getFilesForLocation(clientId, locationId) {
+  const result = [];
+  Object.entries(filesAssignments).forEach(([filename, entry]) => {
+    if (!entry.assignments) return;
+    entry.assignments.forEach((a) => {
+      if (a.clientId === clientId && a.locationId === locationId) {
+        result.push({
+          filename,
+          displayName: entry.displayName || filename,
+          userId: a.userId || null,
+          onDisk: filesData?.diskFiles?.includes(filename) ?? false,
+        });
+      }
+    });
+  });
+  return result;
+}
+
+async function copyFileToClipboard(filename, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/clipboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      showToast(err.error === 'File not found' ? t.fileMissing : t.toastClipboardFail, 'error');
+      btn.disabled = false;
+      return;
+    }
+    btn.textContent = '✓';
+    showToast(t.toastClipboardOk);
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 1500);
+  } catch {
+    showToast(t.toastClipboardFail, 'error');
+    btn.disabled = false;
+  }
+}
+
+function renderLocationFilesHTML(client, location) {
+  const files = getFilesForLocation(client.id, location.id);
+  if (!files.length) return `<p class="list-empty">${t.noFilesAssigned}</p>`;
+  return files.map(({ filename, displayName, userId, onDisk }) => {
+    const user = userId ? location.users.find((u) => u.id === userId) : null;
+    const userTag = user ? `<span class="file-user-tag">${escapeHtml(user.username)}</span>` : '';
+    if (!onDisk) {
+      return `
+        <div class="file-row">
+          <span class="loc-file-name">${escapeHtml(displayName)}</span>
+          ${userTag}
+          <span class="file-missing-badge">${t.fileMissing}</span>
+        </div>`;
+    }
+    return `
+      <div class="file-row">
+        <span class="loc-file-name">${escapeHtml(displayName)}</span>
+        ${userTag}
+        <button class="btn-copy copy-file-btn" data-filename="${escapeHtml(filename)}">${t.btnCopyFile}</button>
+      </div>`;
+  }).join('');
+}
+
 // ---- Sweep ----
 
 async function sweepAllPending() {
@@ -836,6 +1174,7 @@ function render() {
   renderClientList();
   renderMainPanel();
   renderServerList();
+  renderFilesBadge();
   updateVersionBadge();
 }
 
@@ -902,6 +1241,7 @@ function renderClientList() {
 }
 
 function selectClient(id) {
+  showingFileMgr = false;
   selectedClientId = id;
   const client = appData.clients.find((c) => c.id === id);
   selectedLocationId = client?.locations[0]?.id || null;
@@ -946,6 +1286,8 @@ function renderServerList() {
 }
 
 function renderMainPanel() {
+  if (showingFileMgr) { renderFileManager(); return; }
+
   const panel = document.getElementById('main-panel');
 
   if (!selectedClientId) {
@@ -1070,6 +1412,13 @@ function renderLocationHTML(client, location) {
         ${location.certs.map((cert) => renderCertRowHTML(cert)).join('')}
       </div>
 
+      <div class="location-files-section">
+        <div class="section-header">
+          <h3>${t.sectionFiles}</h3>
+        </div>
+        ${renderLocationFilesHTML(client, location)}
+      </div>
+
       <div class="users-section">
         <div class="section-header">
           <h3>${t.sectionUsers}</h3>
@@ -1186,6 +1535,12 @@ function bindLocationActions(client, location) {
     } else if (e.target.classList.contains('toggle-cert-hist-btn')) {
       document.getElementById(`cert-history-${certId}`).classList.toggle('hidden');
       e.target.classList.toggle('open');
+    }
+  });
+
+  document.querySelector('.location-files-section').addEventListener('click', (e) => {
+    if (e.target.classList.contains('copy-file-btn')) {
+      copyFileToClipboard(e.target.dataset.filename, e.target);
     }
   });
 
@@ -1912,6 +2267,7 @@ async function init() {
   applyStaticText();
   await unlockAndLoadData();
   await loadServers();
+  await loadFiles();
   render();
 
   document.getElementById('admin-btn').onclick = () =>
@@ -1932,6 +2288,15 @@ async function init() {
 
   document.getElementById('add-client-btn').onclick = addClient;
   document.getElementById('add-server-btn').onclick = addServer;
+  document.getElementById('file-manager-btn').onclick = () => {
+    if (!isAdminMode) return;
+    showingFileMgr = true;
+    selectedClientId = null;
+    selectedLocationId = null;
+    closeSidebar();
+    renderMainPanel();
+    renderFilesBadge();
+  };
   document.getElementById('export-btn').onclick = exportJson;
   document.getElementById('export-txt-btn').onclick = () => exportTxt();
 

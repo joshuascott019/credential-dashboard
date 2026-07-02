@@ -1,10 +1,13 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const { exec } = require('child_process');
 
 const app = express();
 const DATA_FILE = path.join(__dirname, 'data', 'credentials.json');
 const SERVERS_FILE = path.join(__dirname, 'data', 'servers.json');
+const FILES_FILE = path.join(__dirname, 'data', 'files.json');
+const FILES_DIR = path.join(__dirname, 'files');
 const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
@@ -41,6 +44,30 @@ function ensureServersFile() {
   if (!fs.existsSync(SERVERS_FILE)) {
     fs.writeFileSync(SERVERS_FILE, JSON.stringify({ encrypted: false, servers: [] }, null, 2));
   }
+}
+
+function ensureFilesDir() {
+  if (!fs.existsSync(FILES_DIR)) fs.mkdirSync(FILES_DIR);
+}
+
+function ensureFilesFile() {
+  if (!fs.existsSync(FILES_FILE)) {
+    fs.writeFileSync(FILES_FILE, JSON.stringify({
+      version: 1,
+      lastModified: new Date().toISOString(),
+      assignments: {}
+    }, null, 2));
+  }
+}
+
+function isValidFilesPayload(data) {
+  if (typeof data !== 'object' || data === null) return false;
+  if (data.encrypted) {
+    return typeof data.salt === 'string'
+        && typeof data.iv === 'string'
+        && typeof data.data === 'string';
+  }
+  return typeof data.assignments === 'object' && data.assignments !== null;
 }
 
 function isValidServersPayload(data) {
@@ -120,6 +147,62 @@ app.post('/api/servers', (req, res) => {
   }
 });
 
+app.get('/api/files', (req, res) => {
+  try {
+    ensureFilesDir();
+    ensureFilesFile();
+    const diskFiles = fs.readdirSync(FILES_DIR)
+      .filter(f => fs.statSync(path.join(FILES_DIR, f)).isFile());
+    const assignments = JSON.parse(fs.readFileSync(FILES_FILE, 'utf8'));
+    res.json({ diskFiles, assignments });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to read files' });
+  }
+});
+
+app.post('/api/files', (req, res) => {
+  if (!isValidFilesPayload(req.body)) return res.status(400).json({ error: 'Invalid payload' });
+  try {
+    const data = req.body;
+    data.version = (data.version || 0) + 1;
+    data.lastModified = new Date().toISOString();
+    fs.writeFileSync(FILES_FILE, JSON.stringify(data, null, 2));
+    res.json({ success: true, version: data.version });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save files' });
+  }
+});
+
+app.post('/api/clipboard', (req, res) => {
+  const { filename } = req.body;
+
+  if (typeof filename !== 'string' || !filename.trim()) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  if (filename.includes('/') || filename.includes('\\') || filename.includes('..')) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+
+  const filePath = path.resolve(path.join(FILES_DIR, filename));
+
+  if (!filePath.startsWith(path.resolve(FILES_DIR) + path.sep)) {
+    return res.status(400).json({ error: 'Invalid filename' });
+  }
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+
+  // PowerShell single-quote escape: '' replaces '
+  const escaped = filePath.replace(/'/g, "''");
+  exec(
+    `powershell.exe -NonInteractive -Command "Set-Clipboard -Path '${escaped}'"`,
+    (err) => {
+      if (err) return res.status(500).json({ error: 'Clipboard write failed' });
+      res.json({ success: true });
+    }
+  );
+});
+
 app.post('/api/import/confirm', (req, res) => {
   if (!isValidPayload(req.body)) return res.status(400).json({ error: 'Invalid payload' });
   try {
@@ -133,6 +216,8 @@ app.post('/api/import/confirm', (req, res) => {
 
 ensureDataFile();
 ensureServersFile();
+ensureFilesDir();
+ensureFilesFile();
 app.listen(PORT, () => {
   console.log(`Credential Dashboard running at http://localhost:${PORT}`);
   resetIdleTimer();
